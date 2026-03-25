@@ -1,12 +1,13 @@
 <?php
-// Corre este archivo UNA VEZ para crear las tablas en MySQL
-// Visita: https://tu-dominio.com/api/setup.php
+// Corre este archivo para crear/actualizar todas las tablas en MySQL
+// Visita: https://tu-dominio.com/api/setup.php  (es seguro correrlo más de una vez)
 require_once 'config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 $db = getDB();
 
+// ─── Tienda ────────────────────────────────────────────────────────────────
 $db->exec("
 CREATE TABLE IF NOT EXISTS `orders` (
   `id`             varchar(20)    NOT NULL,
@@ -68,8 +69,46 @@ CREATE TABLE IF NOT EXISTS `products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
+// ─── Auth ──────────────────────────────────────────────────────────────────
+$db->exec("
+CREATE TABLE IF NOT EXISTS `users` (
+  `id`            int(11)      NOT NULL AUTO_INCREMENT,
+  `name`          varchar(100) NOT NULL,
+  `email`         varchar(150) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `phone`         varchar(20)  DEFAULT NULL,
+  `address`       text         DEFAULT NULL,
+  `created_at`    datetime     DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
+$db->exec("
+CREATE TABLE IF NOT EXISTS `refresh_tokens` (
+  `id`          int(11)      NOT NULL AUTO_INCREMENT,
+  `user_id`     int(11)      NOT NULL,
+  `token_hash`  varchar(64)  NOT NULL,
+  `expires_at`  datetime     NOT NULL,
+  `ip`          varchar(45)  DEFAULT NULL,
+  `created_at`  datetime     DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `token_hash` (`token_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
+$db->exec("
+CREATE TABLE IF NOT EXISTS `login_attempts` (
+  `ip`           varchar(45) NOT NULL,
+  `attempts`     int(11)     DEFAULT 0,
+  `last_attempt` datetime    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
 echo json_encode([
     'success' => true,
-    'message' => 'Tablas creadas correctamente: orders, order_items, products',
-    'next'    => 'Ahora sube los archivos PHP y configura VITE_API_URL en tu .env.local',
+    'tables'  => ['orders', 'order_items', 'products', 'users', 'refresh_tokens', 'login_attempts'],
+    'message' => 'Todas las tablas creadas/verificadas correctamente.',
 ]);

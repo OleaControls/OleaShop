@@ -1,42 +1,63 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { api, setToken, clearToken } from '../services/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem('oleacontrols-user');
-        return saved ? JSON.parse(saved) : null;
-    });
+    const [user, setUser]       = useState(null);
+    const [loading, setLoading] = useState(true); // restaurando sesión al cargar
 
-    const register = (name, email, password) => {
-        const newUser = { name, email };
-        localStorage.setItem('oleacontrols-user', JSON.stringify(newUser));
-        setUser(newUser);
+    // Al montar: intentar restaurar sesión con el refresh cookie httpOnly
+    useEffect(() => {
+        api.auth.refresh()
+            .then(({ accessToken, user }) => {
+                setToken(accessToken);
+                setUser(user);
+            })
+            .catch(() => {
+                // Sin sesión activa — está bien
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    const register = async (name, email, password) => {
+        const { accessToken, user } = await api.auth.register({ name, email, password });
+        setToken(accessToken);
+        setUser(user);
     };
 
-    const login = (email, password) => {
-        const saved = localStorage.getItem('oleacontrols-user');
-        if (saved) {
-            const stored = JSON.parse(saved);
-            if (stored.email === email) {
-                setUser(stored);
-                return true;
-            }
-        }
-        // Si no hay cuenta registrada, crear sesión con ese email
-        const newUser = { name: email.split('@')[0], email };
-        localStorage.setItem('oleacontrols-user', JSON.stringify(newUser));
-        setUser(newUser);
-        return true;
+    const login = async (email, password) => {
+        const { accessToken, user } = await api.auth.login({ email, password });
+        setToken(accessToken);
+        setUser(user);
     };
 
-    const logout = () => {
-        localStorage.removeItem('oleacontrols-user');
+    const logout = async () => {
+        await api.auth.logout().catch(() => {});
+        clearToken();
         setUser(null);
     };
 
+    const updateProfile = async (data) => {
+        await api.auth.updateProfile(data);
+        setUser(prev => ({ ...prev, ...data }));
+    };
+
+    const changePassword = async (current, password) => {
+        await api.auth.changePassword({ current, password });
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{
+            user,
+            loading,
+            isAuthenticated: !!user,
+            login,
+            register,
+            logout,
+            updateProfile,
+            changePassword,
+        }}>
             {children}
         </AuthContext.Provider>
     );

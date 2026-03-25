@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function Login() {
     const { login } = useAuth();
-    const navigate = useNavigate();
+    const navigate  = useNavigate();
+    const location  = useLocation();
+    const from      = location.state?.from || '/';
 
-    const [form, setForm] = useState({ email: '', password: '' });
-    const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [form, setForm]               = useState({ email: '', password: '' });
+    const [showPassword, setShowPwd]    = useState(false);
+    const [error, setError]             = useState('');
+    const [loading, setLoading]         = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,11 +26,14 @@ export default function Login() {
             return;
         }
         setLoading(true);
-        setTimeout(() => {
-            login(form.email, form.password);
+        try {
+            await login(form.email, form.password);
+            navigate(from, { replace: true });
+        } catch (err) {
+            setError(err.message || 'Correo o contraseña incorrectos');
+        } finally {
             setLoading(false);
-            navigate('/');
-        }, 800);
+        }
     };
 
     return (
@@ -67,6 +72,7 @@ export default function Login() {
                                     value={form.email}
                                     onChange={handleChange}
                                     placeholder="tu@correo.com"
+                                    autoComplete="email"
                                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm placeholder:text-slate-300 focus:outline-none focus:ring-3 focus:ring-blue-600/10 focus:border-blue-500 focus:bg-white transition-all"
                                 />
                             </div>
@@ -85,11 +91,12 @@ export default function Login() {
                                     value={form.password}
                                     onChange={handleChange}
                                     placeholder="••••••••"
+                                    autoComplete="current-password"
                                     className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-medium text-sm placeholder:text-slate-300 focus:outline-none focus:ring-3 focus:ring-blue-600/10 focus:border-blue-500 focus:bg-white transition-all"
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    onClick={() => setShowPwd(!showPassword)}
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -121,14 +128,12 @@ export default function Login() {
                         </button>
                     </form>
 
-                    {/* Divider */}
                     <div className="flex items-center gap-4 my-6">
                         <div className="flex-1 h-px bg-slate-100" />
                         <span className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-300">o</span>
                         <div className="flex-1 h-px bg-slate-100" />
                     </div>
 
-                    {/* Register link */}
                     <p className="text-center text-sm text-slate-500 font-medium">
                         ¿No tienes cuenta?{' '}
                         <Link to="/register" className="font-bold text-blue-600 hover:text-blue-800 transition-colors">
@@ -137,7 +142,6 @@ export default function Login() {
                     </p>
                 </div>
 
-                {/* Trust badge */}
                 <div className="flex items-center justify-center gap-2 mt-6 text-slate-400">
                     <ShieldCheck className="size-4 text-blue-400" />
                     <span className="font-display text-[9px] font-semibold uppercase tracking-widest">Conexión segura y encriptada</span>
