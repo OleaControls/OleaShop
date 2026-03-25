@@ -3,11 +3,12 @@ import { useState } from 'react';
 import SectionTitle from '../components/section-title';
 
 export default function FaqSection() {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(null);
+
     const data = [
         {
             question: '¿Qué tipo de garantía ofrecen en sus instalaciones?',
-            answer: "Ofrecemos una garantía técnica por escrito de 3 años en todas nuestras instalaciones de sistemas especiales, cubriendo tanto vicios ocultos como defectos en la ejecución del proyecto.",
+            answer: 'Ofrecemos una garantía técnica por escrito de 3 años en todas nuestras instalaciones de sistemas especiales, cubriendo tanto vicios ocultos como defectos en la ejecución del proyecto.',
         },
         {
             question: '¿Cuentan con certificaciones para sistemas de detección de incendio?',
@@ -23,7 +24,7 @@ export default function FaqSection() {
         },
         {
             question: '¿Sus soluciones de videovigilancia cumplen con normativas de protección de datos?',
-            answer: "Absolutamente. Diseñamos nuestros sistemas de CCTV y control de acceso cumpliendo rigurosamente con la Ley Federal de Protección de Datos Personales y estándares de ciberseguridad industrial.",
+            answer: 'Absolutamente. Diseñamos nuestros sistemas de CCTV y control de acceso cumpliendo rigurosamente con la Ley Federal de Protección de Datos Personales y estándares de ciberseguridad industrial.',
         },
         {
             question: '¿Ofrecen pólizas de mantenimiento preventivo y correctivo?',
@@ -32,19 +33,35 @@ export default function FaqSection() {
     ];
 
     return (
-        <section className='flex flex-col items-center justify-center mt-40 mb-20'>
-            <SectionTitle title="Preguntas Frecuentes" subtitle="Encuentre respuestas detalladas sobre nuestros procesos de ingeniería, estándares de calidad y servicios técnicos." />
-            <div className='mx-auto mt-16 w-full max-w-2xl px-4'>
+        <section className="py-16 md:py-24 px-5 md:px-6 mb-8 md:mb-16">
+            <SectionTitle
+                title="Preguntas Frecuentes"
+                subtitle="Respuestas sobre nuestros procesos, estándares de calidad y servicios técnicos."
+            />
+            <div className="mx-auto mt-10 md:mt-16 w-full max-w-2xl">
                 {data.map((item, index) => (
-                    <div key={index} className='flex flex-col border-b border-slate-100 bg-white mb-2 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md'>
-                        <h3 className='flex cursor-pointer items-center justify-between gap-4 px-6 py-5 font-black text-slate-800 text-sm uppercase tracking-wide' onClick={() => setIsOpen(isOpen === index ? null : index)}>
-                            {item.question}
-                            <div className={`p-1 rounded-lg transition-colors ${isOpen === index ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-400'}`}>
-                                {isOpen === index ? <MinusIcon className='size-4' /> : <PlusIcon className='size-4' />}
+                    <div
+                        key={index}
+                        className="border-b border-slate-100 bg-white mb-2 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md"
+                    >
+                        <button
+                            className="w-full flex items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5 text-left"
+                            onClick={() => setIsOpen(isOpen === index ? null : index)}
+                        >
+                            <span className="font-display font-bold text-slate-800 text-xs md:text-sm uppercase tracking-wide leading-snug">
+                                {item.question}
+                            </span>
+                            <div className={`shrink-0 p-1.5 rounded-lg transition-colors ${isOpen === index ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-400'}`}>
+                                {isOpen === index
+                                    ? <MinusIcon className="size-3.5" />
+                                    : <PlusIcon className="size-3.5" />
+                                }
                             </div>
-                        </h3>
-                        <div className={`overflow-hidden transition-all duration-300 ${isOpen === index ? 'max-h-40' : 'max-h-0'}`}>
-                            <p className='px-6 pb-6 text-sm leading-relaxed text-slate-500 font-medium'>{item.answer}</p>
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-300 ${isOpen === index ? 'max-h-48' : 'max-h-0'}`}>
+                            <p className="px-5 pb-5 md:px-6 md:pb-6 text-sm leading-relaxed text-slate-500 font-medium">
+                                {item.answer}
+                            </p>
                         </div>
                     </div>
                 ))}

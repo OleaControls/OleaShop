@@ -1,5 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
-import Banner from "./components/banner";
+import { Routes, Route, useLocation } from 'react-router-dom';
 import LenisScroll from "./components/lenis-scroll";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
@@ -10,16 +9,25 @@ import FaqSection from "./sections/faq-section";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Cuenta from "./pages/Cuenta";
+import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Nosotros from "./pages/Nosotros";
+import Contacto from "./pages/Contacto";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import { ProductsProvider } from "./context/ProductsContext";
 
-// Nuevos componentes de la Home
 import Categories from "./components/Categories";
 import Features from "./components/Features";
 import ProductsSection from "./components/ProductsSection";
 
 function HomePage() {
     return (
-        <main className='px-4 md:px-0'>
+        <main>
             <HeroSection />
             <Categories />
             <Features />
@@ -31,19 +39,41 @@ function HomePage() {
     );
 }
 
-export default function App() {
+function AppShell() {
+    const { pathname } = useLocation();
+    const isAdmin = pathname.startsWith('/admin');
+
     return (
-        <CartProvider>
+        <>
             <LenisScroll />
-            <Banner />
-            <Navbar />
+            {!isAdmin && <Navbar />}
             <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/cuenta" element={<Cuenta />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/nosotros" element={<Nosotros />} />
+                <Route path="/contacto" element={<Contacto />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<Admin />} />
             </Routes>
-            <Footer />
+            {!isAdmin && <Footer />}
+        </>
+    );
+}
+
+export default function App() {
+    return (
+        <AuthProvider>
+        <ProductsProvider>
+        <CartProvider>
+            <AppShell />
         </CartProvider>
+        </ProductsProvider>
+        </AuthProvider>
     );
 }
