@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { api } from '../services/api';
 import {
     ChevronLeft, ChevronRight, MapPin, CreditCard, CheckCircle2,
     Truck, Shield, Lock, Zap, Package, ArrowRight, Check,
@@ -499,37 +500,31 @@ export default function Checkout() {
     const updateShipping = (k, v) => setShipping(p => ({ ...p, [k]: v }));
     const updatePayment  = (k, v) => setPayment(p => ({ ...p, [k]: v }));
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         setLoading(true);
-        setTimeout(() => {
-            const num = Math.floor(100000 + Math.random() * 900000).toString();
-            // Save order to localStorage for admin panel
-            const newOrder = {
-                id: `OC-${num}`,
-                folio: `INST-${new Date().getFullYear()}-${num}`,
-                fecha: new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }),
-                fechaCreacion: new Date().toISOString(),
-                shipping,
-                payment: { metodo: payment.metodo, ultimosCuatro: payment.numeroTarjeta?.replace(/\s/g,'').slice(-4) || null },
-                items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, image: i.image, category: i.category })),
-                total: cartTotal,
-                // Admin fields
-                status: 'nueva',
-                pagoStatus: payment.metodo === 'tarjeta' ? 'confirmado' : 'pendiente',
-                tecnico: null,
-                fechaInstalacion: null,
-                horaInstalacion: null,
-                notas: '',
-                prioridad: 'normal',
-            };
-            const existing = JSON.parse(localStorage.getItem('olea-orders') || '[]');
-            localStorage.setItem('olea-orders', JSON.stringify([newOrder, ...existing]));
-            setOrderNumber(num);
-            clearCart();
-            setLoading(false);
-            setStep(4);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 2200);
+        const num = Math.floor(100000 + Math.random() * 900000).toString();
+        const newOrder = {
+            id: `OC-${num}`,
+            folio: `INST-${new Date().getFullYear()}-${num}`,
+            fecha: new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }),
+            fechaCreacion: new Date().toISOString(),
+            shipping,
+            payment: { metodo: payment.metodo, ultimosCuatro: payment.numeroTarjeta?.replace(/\s/g,'').slice(-4) || null },
+            items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, image: i.image, category: i.category })),
+            total: cartTotal,
+            status: 'nueva',
+            pagoStatus: payment.metodo === 'tarjeta' ? 'confirmado' : 'pendiente',
+        };
+        try {
+            await api.createOrder(newOrder);
+        } catch (e) {
+            console.error('Error al guardar orden:', e);
+        }
+        setOrderNumber(num);
+        clearCart();
+        setLoading(false);
+        setStep(4);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (cart.length === 0 && step !== 4) {

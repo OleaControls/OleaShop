@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductsContext';
+import { api } from '../services/api';
 import {
     LayoutDashboard, Package, Calendar, Users, Wrench, LogOut,
     ChevronRight, TrendingUp, Clock, CheckCircle2, XCircle,
@@ -14,14 +15,6 @@ import {
 } from 'lucide-react';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
-const ORDERS_KEY   = 'olea-orders';
-
-function loadOrders() {
-    return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
-}
-function saveOrders(list) {
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(list));
-}
 
 // ─── Status configs ───────────────────────────────────────────────────────────
 const INSTALL_STATUS = {
@@ -387,10 +380,9 @@ function TabOrdenes({ orders, setOrders }) {
         return matchS && matchF;
     }), [orders, search, filterPago]);
 
-    const handleSave = (updated) => {
-        const next = orders.map(o => o.id === updated.id ? updated : o);
-        setOrders(next);
-        saveOrders(next);
+    const handleSave = async (updated) => {
+        await api.updateOrderPayment(updated.id, updated.pagoStatus).catch(console.error);
+        setOrders(prev => prev.map(o => o.id === updated.id ? updated : o));
         setSelected(null);
     };
 
@@ -717,10 +709,9 @@ function TabPagos({ orders, setOrders }) {
 
     const filtered = filter === 'todos' ? orders : orders.filter(o => o.pagoStatus === filter);
 
-    const updatePago = (id, pagoStatus) => {
-        const next = orders.map(o => o.id === id ? { ...o, pagoStatus } : o);
-        setOrders(next);
-        saveOrders(next);
+    const updatePago = async (id, pagoStatus) => {
+        await api.updateOrderPayment(id, pagoStatus).catch(console.error);
+        setOrders(prev => prev.map(o => o.id === id ? { ...o, pagoStatus } : o));
     };
 
     const totals = {
@@ -810,10 +801,12 @@ export default function Admin() {
     const navigate = useNavigate();
     const [tab, setTab]             = useState('dashboard');
     const [sidebarOpen, setSidebar] = useState(false);
-    const [orders, setOrders]       = useState(loadOrders);
+    const [orders, setOrders]       = useState([]);
 
-    // Reload orders when tab changes (in case a purchase just happened)
-    useEffect(() => { setOrders(loadOrders()); }, [tab]);
+    const fetchOrders = () => api.getOrders().then(setOrders).catch(console.error);
+
+    // Reload orders when tab changes
+    useEffect(() => { fetchOrders(); }, [tab]);
 
     const isAdmin = localStorage.getItem('olea-admin') === '1';
     if (!isAdmin) { navigate('/admin/login'); return null; }

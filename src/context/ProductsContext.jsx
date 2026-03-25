@@ -1,33 +1,57 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { products as defaultProducts } from '../data/products';
-
-const STORAGE_KEY = 'olea-products';
-
-function seed() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-    const initial = defaultProducts.map(p => ({ ...p, stock: 10, activo: true }));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-    return initial;
-}
+import { api } from '../services/api';
 
 const ProductsContext = createContext(null);
 
 export function ProductsProvider({ children }) {
-    const [products, setProducts] = useState(seed);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading]   = useState(true);
 
-    const save = (list) => {
-        setProducts(list);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    useEffect(() => {
+        api.getProducts()
+            .then(async (list) => {
+                if (list.length === 0) {
+                    // Primera vez: sembrar desde datos estáticos
+                    const initial = defaultProducts.map(p => ({ ...p, stock: 10, activo: true }));
+                    for (const p of initial) {
+                        await api.createProduct(p).catch(() => {});
+                    }
+                    setProducts(initial);
+                } else {
+                    setProducts(list);
+                }
+            })
+            .catch(() => {
+                // Fallback si la API falla (ej. desarrollo sin API)
+                setProducts(defaultProducts.map(p => ({ ...p, stock: 10, activo: true })));
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    const addProduct = async (p) => {
+        const newP = { ...p, id: p.id || Date.now().toString(), activo: true };
+        await api.createProduct(newP);
+        setProducts(prev => [...prev, newP]);
     };
 
-    const addProduct    = (p)  => save([...products, { ...p, id: Date.now().toString(), activo: true }]);
-    const updateProduct = (p)  => save(products.map(x => x.id === p.id ? p : x));
-    const deleteProduct = (id) => save(products.filter(x => x.id !== id));
-    const toggleActive  = (id) => save(products.map(x => x.id === id ? { ...x, activo: !x.activo } : x));
+    const updateProduct = async (p) => {
+        await api.updateProduct(p.id, p);
+        setProducts(prev => prev.map(x => x.id === p.id ? p : x));
+    };
+
+    const deleteProduct = async (id) => {
+        await api.deleteProduct(id);
+        setProducts(prev => prev.filter(x => x.id !== id));
+    };
+
+    const toggleActive = async (id) => {
+        await api.toggleProduct(id);
+        setProducts(prev => prev.map(x => x.id === id ? { ...x, activo: !x.activo } : x));
+    };
 
     return (
-        <ProductsContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, toggleActive }}>
+        <ProductsContext.Provider value={{ products, loading, addProduct, updateProduct, deleteProduct, toggleActive }}>
             {children}
         </ProductsContext.Provider>
     );
