@@ -37,6 +37,9 @@ export const api = {
         changePassword: (data)  => request('auth.php?action=change-password',{ method: 'POST', body: JSON.stringify(data) }),
     },
 
+    // ── Stripe ───────────────────────────────────────────────────────────────
+    createPaymentIntent: (amount) => request('stripe.php', { method: 'POST', body: JSON.stringify({ amount }) }),
+
     // ── Orders ────────────────────────────────────────────────────────────────
     getOrders:          ()               => request('orders.php'),
     createOrder:        (order)          => request('orders.php', { method: 'POST', body: JSON.stringify(order) }),

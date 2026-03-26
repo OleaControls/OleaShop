@@ -1,12 +1,29 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { api } from '../services/api';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import {
     ChevronLeft, ChevronRight, MapPin, CreditCard, CheckCircle2,
     Truck, Shield, Lock, Zap, Package, ArrowRight, Check,
     Smartphone, Building2, ClipboardList, Star
 } from 'lucide-react';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+const CARD_ELEMENT_OPTIONS = {
+    style: {
+        base: {
+            fontFamily: 'inherit',
+            fontSize: '13px',
+            color: '#1e293b',
+            letterSpacing: '0.025em',
+            '::placeholder': { color: '#cbd5e1' },
+        },
+        invalid: { color: '#ef4444' },
+    },
+};
 
 // ─── Step indicator ──────────────────────────────────────────────────────────
 function StepBar({ current }) {
@@ -167,16 +184,7 @@ function StepPayment({ data, onChange, onNext, onBack }) {
         { id: 'contraentrega', icon: Package,    label: 'Contra entrega',   sub: 'Paga al recibir'           },
     ];
 
-    const isValid = data.metodo && (
-        data.metodo !== 'tarjeta' ||
-        (data.numeroTarjeta?.replace(/\s/g,'').length === 16 && data.nombreTarjeta?.trim() && data.expiry?.trim() && data.cvv?.trim())
-    );
-
-    const formatCard = v => v.replace(/\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim();
-    const formatExpiry = v => {
-        const d = v.replace(/\D/g,'').slice(0,4);
-        return d.length > 2 ? d.slice(0,2) + '/' + d.slice(2) : d;
-    };
+    const isValid = !!data.metodo;
 
     return (
         <div>
@@ -213,58 +221,13 @@ function StepPayment({ data, onChange, onNext, onBack }) {
                 ))}
             </div>
 
-            {/* Card form */}
+            {/* Aviso Stripe para tarjeta */}
             {data.metodo === 'tarjeta' && (
-                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 md:p-5 space-y-3 mb-6">
-                    <div>
-                        <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-500 block mb-1.5">Número de tarjeta</label>
-                        <input
-                            type="text"
-                            value={data.numeroTarjeta || ''}
-                            onChange={e => onChange('numeroTarjeta', formatCard(e.target.value))}
-                            placeholder="0000 0000 0000 0000"
-                            maxLength={19}
-                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-xs text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-all tracking-widest"
-                        />
-                    </div>
-                    <div>
-                        <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-500 block mb-1.5">Nombre en la tarjeta</label>
-                        <input
-                            type="text"
-                            value={data.nombreTarjeta || ''}
-                            onChange={e => onChange('nombreTarjeta', e.target.value.toUpperCase())}
-                            placeholder="NOMBRE APELLIDO"
-                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-xs text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-all uppercase tracking-widest"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-500 block mb-1.5">Vencimiento</label>
-                            <input
-                                type="text"
-                                value={data.expiry || ''}
-                                onChange={e => onChange('expiry', formatExpiry(e.target.value))}
-                                placeholder="MM/AA"
-                                maxLength={5}
-                                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-xs text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-all tracking-widest"
-                            />
-                        </div>
-                        <div>
-                            <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-500 block mb-1.5">CVV</label>
-                            <input
-                                type="password"
-                                value={data.cvv || ''}
-                                onChange={e => onChange('cvv', e.target.value.replace(/\D/g,'').slice(0,4))}
-                                placeholder="•••"
-                                maxLength={4}
-                                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-xs text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 transition-all tracking-widest"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2 pt-1">
-                        <Lock className="size-3 text-slate-400" />
-                        <span className="font-display text-[8px] font-semibold uppercase tracking-widest text-slate-400">Conexión cifrada SSL 256-bit</span>
-                    </div>
+                <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6 flex items-center gap-3">
+                    <Lock className="size-4 text-blue-500 shrink-0" />
+                    <p className="text-blue-700 text-[10px] font-semibold leading-relaxed">
+                        Ingresarás los datos de tu tarjeta de forma segura en el siguiente paso, procesado por <span className="font-bold">Stripe</span>.
+                    </p>
                 </div>
             )}
 
@@ -323,7 +286,7 @@ function StepPayment({ data, onChange, onNext, onBack }) {
 }
 
 // ─── Step 3: Confirm ──────────────────────────────────────────────────────────
-function StepConfirm({ shipping, payment, cart, cartTotal, onBack, onConfirm, loading }) {
+function StepConfirm({ shipping, payment, cart, cartTotal, onBack, onConfirm, loading, stripeError }) {
     const methodLabels = { tarjeta: 'Tarjeta de crédito/débito', transferencia: 'Transferencia bancaria (SPEI)', contraentrega: 'Pago contra entrega' };
 
     return (
@@ -357,6 +320,27 @@ function StepConfirm({ shipping, payment, cart, cartTotal, onBack, onConfirm, lo
                     <p className="text-slate-400 text-xs font-medium mt-0.5">**** **** **** {payment.numeroTarjeta.replace(/\s/g,'').slice(-4)}</p>
                 )}
             </div>
+
+            {/* Stripe Card Element — solo para tarjeta */}
+            {payment.metodo === 'tarjeta' && (
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 md:p-5 mb-4">
+                    <p className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5 mb-3">
+                        <Lock className="size-3" /> Datos de tarjeta
+                    </p>
+                    <div className="bg-white border border-slate-200 rounded-xl px-4 py-3.5">
+                        <CardElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                    {stripeError && (
+                        <p className="text-red-500 text-[10px] font-semibold mt-2 flex items-center gap-1">
+                            <span>⚠</span> {stripeError}
+                        </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2.5">
+                        <Lock className="size-3 text-slate-300" />
+                        <span className="font-display text-[8px] font-semibold uppercase tracking-widest text-slate-300">Pago cifrado · Powered by Stripe</span>
+                    </div>
+                </div>
+            )}
 
             {/* Items */}
             <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 md:p-5 mb-6">
@@ -487,21 +471,60 @@ function StepSuccess({ orderNumber, shipping }) {
 }
 
 // ─── Main Checkout component ──────────────────────────────────────────────────
-export default function Checkout() {
+function CheckoutInner() {
     const { cart, cartTotal, clearCart } = useCart();
     const navigate = useNavigate();
+    const stripe   = useStripe();
+    const elements = useElements();
 
-    const [step, setStep]           = useState(1);
-    const [loading, setLoading]     = useState(false);
+    const [step, setStep]             = useState(1);
+    const [loading, setLoading]       = useState(false);
+    const [stripeError, setStripeError] = useState('');
     const [orderNumber, setOrderNumber] = useState('');
-    const [shipping, setShipping]   = useState({});
-    const [payment, setPayment]     = useState({});
+    const [shipping, setShipping]     = useState({});
+    const [payment, setPayment]       = useState({});
 
     const updateShipping = (k, v) => setShipping(p => ({ ...p, [k]: v }));
     const updatePayment  = (k, v) => setPayment(p => ({ ...p, [k]: v }));
 
     const handleConfirm = async () => {
         setLoading(true);
+        setStripeError('');
+
+        // ── Pago con tarjeta vía Stripe ──────────────────────────────────────
+        if (payment.metodo === 'tarjeta') {
+            if (!stripe || !elements) {
+                setStripeError('Stripe no está listo. Recarga la página.');
+                setLoading(false);
+                return;
+            }
+            try {
+                const { clientSecret } = await api.createPaymentIntent(cartTotal);
+                const cardElement = elements.getElement(CardElement);
+                const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: { name: shipping.nombre, email: shipping.email },
+                    },
+                });
+                if (error) {
+                    setStripeError(error.message);
+                    setLoading(false);
+                    return;
+                }
+                if (paymentIntent.status !== 'succeeded') {
+                    setStripeError('El pago no pudo completarse. Intenta de nuevo.');
+                    setLoading(false);
+                    return;
+                }
+            } catch (e) {
+                setStripeError('Error al procesar el pago. Verifica tu conexión.');
+                setLoading(false);
+                return;
+            }
+        }
+
+        // ── Guardar orden ────────────────────────────────────────────────────
         const num = Math.floor(100000 + Math.random() * 900000).toString();
         const newOrder = {
             id: `OC-${num}`,
@@ -509,7 +532,7 @@ export default function Checkout() {
             fecha: new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }),
             fechaCreacion: new Date().toISOString(),
             shipping,
-            payment: { metodo: payment.metodo, ultimosCuatro: payment.numeroTarjeta?.replace(/\s/g,'').slice(-4) || null },
+            payment: { metodo: payment.metodo, ultimosCuatro: null },
             items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, image: i.image, category: i.category })),
             total: cartTotal,
             status: 'nueva',
@@ -571,7 +594,7 @@ export default function Checkout() {
                             <div className="p-6 md:p-8">
                                 {step === 1 && <StepShipping data={shipping} onChange={updateShipping} onNext={() => { setStep(2); window.scrollTo({top:0,behavior:'smooth'}); }} />}
                                 {step === 2 && <StepPayment  data={payment}  onChange={updatePayment}  onNext={() => { setStep(3); window.scrollTo({top:0,behavior:'smooth'}); }} onBack={() => setStep(1)} />}
-                                {step === 3 && <StepConfirm  shipping={shipping} payment={payment} cart={cart} cartTotal={cartTotal} onBack={() => setStep(2)} onConfirm={handleConfirm} loading={loading} />}
+                                {step === 3 && <StepConfirm  shipping={shipping} payment={payment} cart={cart} cartTotal={cartTotal} onBack={() => setStep(2)} onConfirm={handleConfirm} loading={loading} stripeError={stripeError} />}
                                 {step === 4 && <StepSuccess  orderNumber={orderNumber} shipping={shipping} />}
                             </div>
                         </div>
@@ -603,5 +626,13 @@ export default function Checkout() {
                 </div>
             </main>
         </div>
+    );
+}
+
+export default function Checkout() {
+    return (
+        <Elements stripe={stripePromise}>
+            <CheckoutInner />
+        </Elements>
     );
 }
