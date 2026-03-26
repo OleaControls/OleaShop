@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 .env.local
 
-# Solo local
+# Solo local — nunca subir a git
 api/test_email.php
+api/.env

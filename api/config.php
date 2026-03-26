@@ -4,22 +4,28 @@ define('DB_NAME',    'u274487731_shopolea');
 define('DB_USER',    'u274487731_sistemasolea');
 define('DB_CHARSET', 'utf8mb4');
 
-// ── Credenciales desde variables de entorno ────────────────────────────────
-define('DB_PASS',    getenv('DB_PASS')       ?: '');
-define('JWT_SECRET', getenv('JWT_SECRET')    ?: '');
+// ── Cargar .env (archivo local, nunca en git) ──────────────────────────────
+$_dotenv = @parse_ini_file(__DIR__ . '/.env') ?: [];
+function _env(string $key, string $default = ''): string {
+    global $_dotenv;
+    return $_dotenv[$key] ?? (getenv($key) ?: $default);
+}
+
+define('DB_PASS',    _env('DB_PASS'));
+define('JWT_SECRET', _env('JWT_SECRET'));
 define('ADMIN_USER', 'oleacontrols');
-define('ADMIN_PASS', getenv('ADMIN_PASS')    ?: '');
+define('ADMIN_PASS', _env('ADMIN_PASS'));
 
 // ── Stripe ─────────────────────────────────────────────────────────────────
-define('STRIPE_SECRET_KEY',     getenv('STRIPE_SECRET')  ?: '');
-define('STRIPE_WEBHOOK_SECRET', getenv('STRIPE_WEBHOOK') ?: '');
+define('STRIPE_SECRET_KEY',     _env('STRIPE_SECRET'));
+define('STRIPE_WEBHOOK_SECRET', _env('STRIPE_WEBHOOK'));
 
 // ── SMTP / PHPMailer ───────────────────────────────────────────────────────
 define('MAIL_HOST',     'smtp.gmail.com');
 define('MAIL_PORT',     587);
 define('MAIL_SECURE',   'tls');
 define('MAIL_USER',     'sistemasoleacontrols@gmail.com');
-define('MAIL_PASS',     getenv('MAIL_PASS')  ?: '');
+define('MAIL_PASS',     _env('MAIL_PASS'));
 define('MAIL_FROM',     'sistemasoleacontrols@gmail.com');
 define('MAIL_FROM_NAME','OLEACONTROLS');
 
