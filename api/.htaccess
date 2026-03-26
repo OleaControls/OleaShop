@@ -4,7 +4,7 @@ RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 # ── Bloquear acceso directo a archivos sensibles ───────────────────────────────
-<FilesMatch "^(config|setup|test_email|composer)\.php$">
+<FilesMatch "^config\.php$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
