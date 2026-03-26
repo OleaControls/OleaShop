@@ -1,13 +1,44 @@
-SetEnvIf Origin "^http://(localhost|127\.0\.0\.1)(:[0-9]+)?$" CORS_ORIGIN=$0
+# ── Forzar HTTPS ──────────────────────────────────────────────────────────────
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
-Header always set Access-Control-Allow-Credentials "true"
+# ── Bloquear acceso directo a archivos sensibles ───────────────────────────────
+<FilesMatch "^(config|setup|test_email|composer)\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+<FilesMatch "composer\.(json|lock)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+<FilesMatch "\.(env|log|sh|sql)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
 
-Header always set Access-Control-Allow-Origin "%{CORS_ORIGIN}e" env=CORS_ORIGIN
+# ── Bloquear listado de directorios ───────────────────────────────────────────
+Options -Indexes
+
+# ── Cabeceras de seguridad ────────────────────────────────────────────────────
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+
+# ── CORS: solo orígenes autorizados ───────────────────────────────────────────
+SetEnvIf Origin "^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$" CORS_OK=1
+SetEnvIf Origin "^https://mediumblue-llama-473263\.hostingersite\.com$" CORS_OK=1
+SetEnvIf Origin "^https://oleacontrols\.com$" CORS_OK=1
+SetEnvIf Origin "^https://www\.oleacontrols\.com$" CORS_OK=1
+
+Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" env=CORS_OK
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization" env=CORS_OK
+Header always set Access-Control-Allow-Credentials "true" env=CORS_OK
+Header always set Access-Control-Allow-Origin "%{HTTP_ORIGIN}e" env=CORS_OK
 Header always set Vary "Origin"
 
-# Responder al preflight OPTIONS directamente (sin tocar PHP)
-RewriteEngine On
+# ── Preflight OPTIONS ─────────────────────────────────────────────────────────
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^ - [R=204,L]

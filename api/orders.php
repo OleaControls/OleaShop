@@ -27,8 +27,9 @@ if ($method === 'GET' && !$id && isset($_GET['me'])) {
     ok($orders);
 }
 
-// ── GET all orders ─────────────────────────────────────────────────────────────
+// ── GET all orders (solo admin) ────────────────────────────────────────────────
 if ($method === 'GET' && !$id) {
+    requireAdminAuth();
     $orders = $db->query("SELECT * FROM orders ORDER BY fecha_creacion DESC")->fetchAll();
     foreach ($orders as &$order) {
         $stmt = $db->prepare("SELECT * FROM order_items WHERE order_id = ?");
@@ -265,8 +266,9 @@ if ($method === 'POST') {
     ok(['success' => true, 'id' => $d['id']], 201);
 }
 
-// ── PATCH update payment status ────────────────────────────────────────────────
+// ── PATCH update payment status (solo admin) ──────────────────────────────────
 if ($method === 'PATCH' && $id) {
+    requireAdminAuth();
     $d = body();
     if (empty($d['pagoStatus'])) err('pagoStatus requerido');
     $db->prepare("UPDATE orders SET pago_status = ? WHERE id = ?")

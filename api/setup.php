@@ -1,7 +1,12 @@
 <?php
-// Corre este archivo para crear/actualizar todas las tablas en MySQL
-// Visita: https://tu-dominio.com/api/setup.php  (es seguro correrlo más de una vez)
+// ⚠️  PROTEGIDO — solo accesible con ?key=SETUP_SECRET
+// Visita: https://tu-dominio.com/api/setup.php?key=OleaSetup2026!
 require_once 'config.php';
+
+if (($_GET['key'] ?? '') !== 'OleaSetup2026!') {
+    http_response_code(403);
+    die(json_encode(['error' => 'Acceso denegado']));
+}
 
 header('Content-Type: application/json; charset=utf-8');
 

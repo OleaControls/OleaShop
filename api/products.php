@@ -20,14 +20,15 @@ function fmt(array $p): array {
     return $p;
 }
 
-// ── GET all products ───────────────────────────────────────────────────────────
+// ── GET all products (público) ─────────────────────────────────────────────────
 if ($method === 'GET') {
     $products = $db->query("SELECT * FROM products ORDER BY name ASC")->fetchAll();
     ok(array_map('fmt', $products));
 }
 
-// ── POST create product ────────────────────────────────────────────────────────
+// ── POST create product (solo admin) ──────────────────────────────────────────
 if ($method === 'POST') {
+    requireAdminAuth();
     $d  = body();
     $pid = $d['id'] ?? 'p-'.uniqid();
 
@@ -58,8 +59,9 @@ if ($method === 'POST') {
     ok(['success' => true, 'id' => $pid], 201);
 }
 
-// ── PUT update product ─────────────────────────────────────────────────────────
+// ── PUT update product (solo admin) ───────────────────────────────────────────
 if ($method === 'PUT' && $id) {
+    requireAdminAuth();
     $d = body();
     $db->prepare("
         UPDATE products SET
@@ -88,14 +90,16 @@ if ($method === 'PUT' && $id) {
     ok(['success' => true]);
 }
 
-// ── DELETE product ─────────────────────────────────────────────────────────────
+// ── DELETE product (solo admin) ────────────────────────────────────────────────
 if ($method === 'DELETE' && $id) {
+    requireAdminAuth();
     $db->prepare("DELETE FROM products WHERE id = ?")->execute([$id]);
     ok(['success' => true]);
 }
 
-// ── PATCH toggle activo ────────────────────────────────────────────────────────
+// ── PATCH toggle activo (solo admin) ──────────────────────────────────────────
 if ($method === 'PATCH' && $id) {
+    requireAdminAuth();
     $db->prepare("UPDATE products SET activo = NOT activo WHERE id = ?")->execute([$id]);
     ok(['success' => true]);
 }
