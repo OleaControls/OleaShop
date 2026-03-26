@@ -1,9 +1,9 @@
 <?php
 // ⚠️  PROTEGIDO — solo accesible con ?key=SETUP_SECRET
-// Visita: https://tu-dominio.com/api/setup.php?key=OleaSetup2026!
+// Visita: https://tu-dominio.com/api/setup.php?key=OleaSetup2026
 require_once 'config.php';
 
-if (($_GET['key'] ?? '') !== 'OleaSetup2026!') {
+if (($_GET['key'] ?? '') !== 'OleaSetup2026') {
     http_response_code(403);
     die(json_encode(['error' => 'Acceso denegado']));
 }
