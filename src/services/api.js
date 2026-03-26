@@ -35,14 +35,20 @@ export const api = {
 
     // ── Auth ──────────────────────────────────────────────────────────────────
     auth: {
-        register:       (data)  => request('auth.php?action=register', { method: 'POST', body: JSON.stringify(data) }),
-        login:          (data)  => request('auth.php?action=login',    { method: 'POST', body: JSON.stringify(data) }),
-        logout:         ()      => request('auth.php?action=logout',   { method: 'POST' }),
-        refresh:        ()      => request('auth.php?action=refresh',  { method: 'POST' }),
-        me:             ()      => request('auth.php?action=me'),
-        updateProfile:  (data)  => request('auth.php?action=profile',        { method: 'PUT',  body: JSON.stringify(data) }),
-        changePassword: (data)  => request('auth.php?action=change-password',{ method: 'POST', body: JSON.stringify(data) }),
+        register:        (data)  => request('auth.php?action=register',        { method: 'POST', body: JSON.stringify(data) }),
+        login:           (data)  => request('auth.php?action=login',           { method: 'POST', body: JSON.stringify(data) }),
+        logout:          ()      => request('auth.php?action=logout',          { method: 'POST' }),
+        refresh:         ()      => request('auth.php?action=refresh',         { method: 'POST' }),
+        me:              ()      => request('auth.php?action=me'),
+        updateProfile:   (data)  => request('auth.php?action=profile',         { method: 'PUT',  body: JSON.stringify(data) }),
+        changePassword:  (data)  => request('auth.php?action=change-password', { method: 'POST', body: JSON.stringify(data) }),
+        forgotPassword:  (email) => request('auth.php?action=forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+        resetPassword:   (data)  => request('auth.php?action=reset-password',  { method: 'POST', body: JSON.stringify(data) }),
     },
+
+    // ── Reviews ───────────────────────────────────────────────────────────────
+    getReviews:    (productId) => request(`reviews.php?product_id=${productId}`),
+    createReview:  (data)      => request('reviews.php', { method: 'POST', body: JSON.stringify(data) }),
 
     // ── Stripe ───────────────────────────────────────────────────────────────
     createPaymentIntent: (amount) => request('stripe.php', { method: 'POST', body: JSON.stringify({ amount }) }),

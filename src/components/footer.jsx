@@ -15,10 +15,10 @@ export default function Footer() {
         {
             title: 'Compañía',
             links: [
-                { title: 'Sobre Nosotros', href: '#' },
-                { title: 'Proyectos Reales', href: '#' },
-                { title: 'Términos de Venta', href: '#' },
-                { title: 'Aviso de Privacidad', href: '#' },
+                { title: 'Sobre Nosotros',     href: '/nosotros'    },
+                { title: 'Política de Devoluciones', href: '/devoluciones' },
+                { title: 'Términos y Condiciones',   href: '/terminos'     },
+                { title: 'Aviso de Privacidad',      href: '/privacidad'   },
             ],
         },
     ];

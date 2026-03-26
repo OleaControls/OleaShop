@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
+import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 
 const categoryColors = {
     'Seguridad': 'bg-blue-600/10 text-blue-700 border-blue-200',
@@ -20,11 +22,40 @@ export default function ProductDetail() {
     const { products } = useProducts();
     const product = products.find(p => p.id === id);
     const { addToCart } = useCart();
-    const [added, setAdded] = useState(false);
-    const [qty, setQty] = useState(1);
+    const { user, isAuthenticated } = useAuth();
+    const [added, setAdded]         = useState(false);
+    const [qty, setQty]             = useState(1);
     const [activeTab, setActiveTab] = useState('especificaciones');
+    const [activeImg, setActiveImg] = useState(null);
+    const [reviews, setReviews]     = useState([]);
+    const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+    const [submitting, setSubmitting] = useState(false);
+    const [reviewDone, setReviewDone] = useState(false);
 
-    useEffect(() => { window.scrollTo(0, 0); setQty(1); setAdded(false); }, [id]);
+    useEffect(() => { window.scrollTo(0, 0); setQty(1); setAdded(false); setActiveImg(null); setReviews([]); setReviewDone(false); }, [id]);
+
+    useEffect(() => {
+        if (!product) return;
+        document.title = `${product.name} — OLEACONTROLS`;
+        api.getReviews(product.id).then(setReviews).catch(() => {});
+    }, [product]);
+
+    const allImages = product ? [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean) : [];
+    const mainImage = activeImg || allImages[0] || '';
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        if (!isAuthenticated) return;
+        setSubmitting(true);
+        try {
+            await api.createReview({ product_id: product.id, rating: reviewForm.rating, comment: reviewForm.comment });
+            const updated = await api.getReviews(product.id);
+            setReviews(updated);
+            setReviewDone(true);
+            setReviewForm({ rating: 5, comment: '' });
+        } catch {}
+        finally { setSubmitting(false); }
+    };
 
     if (!product) {
         return (
@@ -87,28 +118,37 @@ export default function ProductDetail() {
 
                         {/* Main image */}
                         <div className="relative bg-white rounded-2xl md:rounded-3xl border border-slate-100 overflow-hidden shadow-md group aspect-square flex items-center justify-center p-10 md:p-16">
-                            {/* Background gradient */}
                             <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 pointer-events-none" />
-
                             <img
-                                src={product.image}
+                                src={mainImage}
                                 alt={product.name}
                                 className="relative z-10 w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-700 drop-shadow-xl"
                             />
-
-                            {/* Premium badge */}
                             <div className="absolute top-4 left-4 z-20">
-                                <span className="font-display text-[8px] font-bold uppercase tracking-[0.2em] bg-slate-900 text-white px-3 py-1.5 rounded-full shadow-lg">
-                                    Premium Tech
-                                </span>
+                                <span className="font-display text-[8px] font-bold uppercase tracking-[0.2em] bg-slate-900 text-white px-3 py-1.5 rounded-full shadow-lg">Premium Tech</span>
                             </div>
-
-                            {/* Stock pill */}
                             <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-white border border-emerald-100 shadow-sm px-3 py-1.5 rounded-full">
                                 <span className="size-1.5 bg-emerald-500 rounded-full animate-pulse" />
                                 <span className="font-display text-[8px] font-bold text-emerald-700 uppercase tracking-wider">En stock</span>
                             </div>
                         </div>
+
+                        {/* Thumbnails */}
+                        {allImages.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto pb-1">
+                                {allImages.map((img, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setActiveImg(img)}
+                                        className={`size-16 shrink-0 rounded-xl border-2 overflow-hidden bg-white flex items-center justify-center p-1.5 transition-all ${
+                                            mainImage === img ? 'border-blue-500 shadow-md shadow-blue-100' : 'border-slate-100 hover:border-slate-300'
+                                        }`}
+                                    >
+                                        <img src={img} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Trust badges */}
                         <div className="grid grid-cols-3 gap-3">
@@ -259,6 +299,7 @@ export default function ProductDetail() {
                                 {[
                                     { id: 'especificaciones', label: 'Especificaciones' },
                                     { id: 'soporte',          label: 'Garantía'         },
+                                    { id: 'resenas',          label: `Reseñas (${reviews.length})` },
                                 ].map(tab => (
                                     <button
                                         key={tab.id}
@@ -286,7 +327,7 @@ export default function ProductDetail() {
                                             </div>
                                         ))}
                                     </div>
-                                ) : (
+                                ) : activeTab === 'soporte' ? (
                                     <div className="space-y-4">
                                         {[
                                             { icon: Shield,  title: 'Garantía de Fábrica 3 Años', desc: 'Cobertura total contra defectos de fabricación con respaldo técnico de ingeniería de primer nivel.' },
@@ -306,6 +347,59 @@ export default function ProductDetail() {
                                         <button className="font-display text-[10px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-widest underline underline-offset-4 decoration-blue-200 transition-colors">
                                             Descargar ficha técnica (PDF)
                                         </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {reviews.length === 0 ? (
+                                            <p className="text-slate-400 text-sm font-medium text-center py-4">Aún no hay reseñas. ¡Sé el primero!</p>
+                                        ) : (
+                                            reviews.map(r => (
+                                                <div key={r.id} className="border-b border-slate-50 pb-4 last:border-0">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <p className="font-display text-xs font-bold text-slate-900">{r.user_name}</p>
+                                                        <div className="flex gap-0.5">
+                                                            {[1,2,3,4,5].map(i => (
+                                                                <Star key={i} className={`size-3 ${i <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    {r.comment && <p className="text-slate-500 text-xs font-medium leading-relaxed">{r.comment}</p>}
+                                                    <p className="text-slate-300 text-[10px] font-medium mt-1">{new Date(r.created_at).toLocaleDateString('es-MX')}</p>
+                                                </div>
+                                            ))
+                                        )}
+
+                                        {isAuthenticated && !reviewDone && !reviews.find(r => r.user_name === user?.name) && (
+                                            <form onSubmit={handleReviewSubmit} className="border-t border-slate-100 pt-4 space-y-3">
+                                                <p className="font-display text-[10px] font-bold uppercase tracking-wider text-slate-500">Deja tu reseña</p>
+                                                <div className="flex gap-1">
+                                                    {[1,2,3,4,5].map(i => (
+                                                        <button key={i} type="button" onClick={() => setReviewForm(p => ({ ...p, rating: i }))}>
+                                                            <Star className={`size-5 transition-colors ${i <= reviewForm.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 hover:text-amber-200'}`} />
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <textarea
+                                                    value={reviewForm.comment}
+                                                    onChange={e => setReviewForm(p => ({ ...p, comment: e.target.value }))}
+                                                    placeholder="Cuéntanos tu experiencia (opcional)..."
+                                                    rows={3}
+                                                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 text-sm text-slate-700 font-medium focus:outline-none focus:border-blue-400 focus:bg-white resize-none transition-all"
+                                                />
+                                                <button type="submit" disabled={submitting}
+                                                    className="font-display text-[10px] font-bold uppercase tracking-wider bg-slate-900 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl transition-all disabled:opacity-60">
+                                                    {submitting ? 'Enviando...' : 'Publicar reseña'}
+                                                </button>
+                                            </form>
+                                        )}
+                                        {reviewDone && (
+                                            <p className="text-emerald-600 text-xs font-bold uppercase tracking-wider border-t border-slate-100 pt-3">¡Gracias por tu reseña!</p>
+                                        )}
+                                        {!isAuthenticated && (
+                                            <p className="text-slate-400 text-xs font-medium border-t border-slate-100 pt-3">
+                                                <a href="/login" className="text-blue-600 hover:underline">Inicia sesión</a> para dejar una reseña.
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                             </div>

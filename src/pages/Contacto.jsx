@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, MessageSquare, Headphones } from 'lucide-react';
 
 const contactInfo = [
@@ -33,6 +33,7 @@ const reasons = [
 ];
 
 export default function Contacto() {
+    useEffect(() => { document.title = 'Contacto — OLEACONTROLS'; }, []);
     const [form, setForm] = useState({ name: '', email: '', phone: '', reason: '', message: '' });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);

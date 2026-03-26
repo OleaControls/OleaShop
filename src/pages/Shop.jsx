@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useProducts } from '../context/ProductsContext';
 import ProductCard from '../components/ProductCard';
 import { useCart } from '../context/CartContext';
@@ -6,8 +6,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
     Search, ArrowLeft, X, SlidersHorizontal,
     ChevronDown, LayoutGrid, List, Sparkles,
-    Shield, Home, Lock
+    Shield, Home, Lock, ChevronLeft, ChevronRight
 } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 9;
 
 /* ── helpers ─────────────────────────────────────────────────────────── */
 const categoryIcons = { 'Seguridad': Shield, 'Hogar Inteligente': Home, 'Seguridad Avanzada': Lock };
@@ -87,6 +89,9 @@ export default function Shop() {
     const [sortBy, setSortBy]             = useState('default');
     const [gridCols, setGridCols]         = useState('grid');
     const [sortOpen, setSortOpen]         = useState(false);
+    const [currentPage, setCurrentPage]   = useState(1);
+
+    useEffect(() => { document.title = 'Tienda — OLEACONTROLS'; }, []);
 
     const categories = ['all', ...new Set(products.map(p => p.category))];
 
@@ -109,6 +114,12 @@ export default function Shop() {
     }, []);
 
     const activeFilters = categoryFilter !== 'all' || searchQuery;
+
+    const totalPages    = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+    const pagedProducts = filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+    // Reset page when filters change
+    useEffect(() => { setCurrentPage(1); }, [categoryFilter, searchQuery, sortBy]);
 
     const clearAll = () => { setSearchQuery(''); setSearchParams({ category: 'all' }); };
 
@@ -349,15 +360,50 @@ export default function Shop() {
                 {/* Products */}
                 <main className="flex-1 min-w-0 pb-20">
                     {filteredProducts.length > 0 ? (
-                        gridCols === 'grid' ? (
+                        <>
+                        {gridCols === 'grid' ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {filteredProducts.map(p => <ProductCard key={p.id} product={p} />)}
+                                {pagedProducts.map(p => <ProductCard key={p.id} product={p} />)}
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4">
-                                {filteredProducts.map(p => <ProductListCard key={p.id} product={p} />)}
+                                {pagedProducts.map(p => <ProductListCard key={p.id} product={p} />)}
                             </div>
-                        )
+                        )}
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-center gap-2 mt-10">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="size-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:border-blue-400 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                                >
+                                    <ChevronLeft className="size-4" />
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={`size-9 rounded-xl font-display text-[11px] font-bold uppercase tracking-wider transition-all ${
+                                            currentPage === page
+                                                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                                                : 'border border-slate-200 bg-white text-slate-500 hover:border-blue-400 hover:text-blue-600'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="size-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:border-blue-400 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                                >
+                                    <ChevronRight className="size-4" />
+                                </button>
+                            </div>
+                        )}
+                        </>
                     ) : (
                         <div className="py-32 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
                             <div className="bg-slate-50 size-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-slate-100">

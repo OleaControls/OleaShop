@@ -17,6 +17,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Nosotros from "./pages/Nosotros";
 import Contacto from "./pages/Contacto";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Privacidad from "./pages/Privacidad";
+import Terminos from "./pages/Terminos";
+import Devoluciones from "./pages/Devoluciones";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ProductsProvider } from "./context/ProductsContext";
@@ -25,6 +30,7 @@ import { AdminAuthProvider } from "./context/AdminAuthContext";
 import Categories from "./components/Categories";
 import Features from "./components/Features";
 import ProductsSection from "./components/ProductsSection";
+import WhatsAppButton from "./components/WhatsAppButton";
 
 function HomePage() {
     return (
@@ -59,10 +65,16 @@ function AppShell() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/nosotros" element={<Nosotros />} />
                 <Route path="/contacto" element={<Contacto />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/privacidad" element={<Privacidad />} />
+                <Route path="/terminos" element={<Terminos />} />
+                <Route path="/devoluciones" element={<Devoluciones />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<Admin />} />
             </Routes>
             {!isAdmin && <Footer />}
+            {!isAdmin && <WhatsAppButton />}
         </>
     );
 }

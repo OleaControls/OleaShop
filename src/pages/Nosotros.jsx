@@ -1,5 +1,6 @@
 import { FlaskConical, PiggyBank, TrendingUp, BookOpen, Gift, BadgePercent, ShieldCheck, GraduationCap, CalendarCheck, HardHat, HeartHandshake, Handshake, CheckCircle, ArrowRight, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const motivos = [
     {
@@ -72,6 +73,7 @@ const brands = [
 ];
 
 export default function Nosotros() {
+    useEffect(() => { document.title = 'Nosotros — OLEACONTROLS'; }, []);
     return (
         <div className="min-h-screen bg-[#F6F6F4]">
 

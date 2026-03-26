@@ -119,6 +119,31 @@ CREATE TABLE IF NOT EXISTS `admin_sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
+$db->exec("
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `user_id`    int(11)     NOT NULL,
+  `token_hash` varchar(64) NOT NULL,
+  `expires_at` datetime    NOT NULL,
+  `created_at` datetime    DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
+$db->exec("
+CREATE TABLE IF NOT EXISTS `reviews` (
+  `id`         int(11)      NOT NULL AUTO_INCREMENT,
+  `product_id` varchar(100) NOT NULL,
+  `user_id`    int(11)      NOT NULL,
+  `user_name`  varchar(100) NOT NULL,
+  `rating`     tinyint(1)   NOT NULL DEFAULT 5,
+  `comment`    text         DEFAULT NULL,
+  `created_at` datetime     DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  UNIQUE KEY `user_product` (`user_id`, `product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
 // ─── Migraciones (agregar columnas nuevas si no existen) ───────────────────
 $migrations = [
     "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `destacado` tinyint(1) DEFAULT 0",
@@ -129,6 +154,6 @@ foreach ($migrations as $sql) {
 
 echo json_encode([
     'success' => true,
-    'tables'  => ['orders', 'order_items', 'products', 'users', 'refresh_tokens', 'login_attempts'],
+    'tables'  => ['orders', 'order_items', 'products', 'users', 'refresh_tokens', 'login_attempts', 'admin_sessions', 'password_resets', 'reviews'],
     'message' => 'Todas las tablas creadas/verificadas correctamente.',
 ]);

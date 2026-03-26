@@ -14,6 +14,8 @@ match ($action) {
     'me'              => handleMe($db),
     'profile'         => handleProfile($db),
     'change-password' => handleChangePassword($db),
+    'forgot-password' => handleForgotPassword($db),
+    'reset-password'  => handleResetPassword($db),
     'admin-login'     => handleAdminLogin($db),
     'admin-refresh'   => handleAdminRefresh($db),
     'admin-logout'    => handleAdminLogout($db),
@@ -257,6 +259,74 @@ function clearRefreshCookie(): void {
         'httponly' => true,
         'samesite' => 'None',
     ]);
+}
+
+// ─── Forgot password ──────────────────────────────────────────────────────────
+function handleForgotPassword(PDO $db): void {
+    $d     = body();
+    $email = strtolower(trim($d['email'] ?? ''));
+    if (!$email) err('Email requerido');
+
+    $stmt = $db->prepare("SELECT id, name FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+
+    if ($user) {
+        $db->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$user['id']]);
+        $token = bin2hex(random_bytes(32));
+        $hash  = hash('sha256', $token);
+        $db->prepare("INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))")
+           ->execute([$user['id'], $hash]);
+
+        $url  = 'https://mediumblue-llama-473263.hostingersite.com/reset-password?token=' . $token;
+        $name = htmlspecialchars($user['name']);
+        $html = "
+<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'></head>
+<body style='margin:0;padding:0;background:#f6f6f4;font-family:Arial,sans-serif;'>
+<div style='max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);'>
+  <div style='background:#1e3a5f;padding:32px 36px;'>
+    <h1 style='margin:0;color:#fff;font-size:20px;font-weight:800;'>OLEACONTROLS</h1>
+    <p style='margin:4px 0 0;color:#93c5fd;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.2em;'>Recuperar contraseña</p>
+  </div>
+  <div style='padding:32px 36px;'>
+    <p style='color:#334155;font-size:15px;margin:0 0 8px;'>Hola <strong>{$name}</strong>,</p>
+    <p style='color:#64748b;font-size:14px;margin:0 0 28px;line-height:1.6;'>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón para continuar. Este enlace expira en <strong>1 hora</strong>.</p>
+    <a href='{$url}' style='display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:14px;font-weight:700;letter-spacing:0.05em;'>Restablecer contraseña</a>
+    <p style='color:#94a3b8;font-size:12px;margin:24px 0 0;line-height:1.6;'>Si no solicitaste esto, ignora este mensaje. Tu contraseña no cambiará.</p>
+  </div>
+  <div style='background:#f8fafc;padding:16px 36px;border-top:1px solid #e2e8f0;'>
+    <p style='margin:0;font-size:11px;color:#94a3b8;text-align:center;'>© 2026 OLEACONTROLS · Ciudad de México</p>
+  </div>
+</div></body></html>";
+        sendEmail($email, 'Recuperar contraseña — OLEACONTROLS', $html);
+    }
+    // Siempre responder igual (evitar enumeración de usuarios)
+    ok(['success' => true]);
+}
+
+// ─── Reset password ────────────────────────────────────────────────────────────
+function handleResetPassword(PDO $db): void {
+    $d        = body();
+    $token    = $d['token']    ?? '';
+    $password = $d['password'] ?? '';
+
+    if (!$token || !$password) err('Token y contraseña requeridos');
+    if (strlen($password) < 8)             err('Mínimo 8 caracteres');
+    if (!preg_match('/[A-Z]/', $password)) err('Debe tener al menos una mayúscula');
+    if (!preg_match('/[0-9]/', $password)) err('Debe tener al menos un número');
+
+    $hash = hash('sha256', $token);
+    $stmt = $db->prepare("SELECT user_id FROM password_resets WHERE token_hash = ? AND expires_at > NOW()");
+    $stmt->execute([$hash]);
+    $row = $stmt->fetch();
+    if (!$row) err('Enlace inválido o expirado. Solicita uno nuevo.', 400);
+
+    $newHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    $db->prepare("UPDATE users SET password_hash = ? WHERE id = ?")->execute([$newHash, $row['user_id']]);
+    $db->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$row['user_id']]);
+    $db->prepare("DELETE FROM refresh_tokens WHERE user_id = ?")->execute([$row['user_id']]);
+
+    ok(['success' => true]);
 }
 
 // ─── Admin Login ──────────────────────────────────────────────────────────────
