@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import {
     LayoutDashboard, Package, User, Shield, LogOut,
     ChevronRight, ShoppingBag, Star, Truck, CheckCircle2,
@@ -8,37 +9,21 @@ import {
     Edit3, Save, X, ArrowRight, BadgeCheck, Zap, Award
 } from 'lucide-react';
 
-// ── Mock orders ───────────────────────────────────────────────────────────────
-const MOCK_ORDERS = [
-    {
-        id: 'OC-841203',
-        date: '18 Mar 2026',
-        status: 'entregado',
-        total: 14980,
-        items: [
-            { name: 'Kit Cámaras Hikvision 4K NVR 8CH', qty: 1, price: 9800, image: '/IMG PARA PAGINA SHOP/camara-hikvision.png' },
-            { name: 'Control Inteligente TP-Link Tapo', qty: 2, price: 2590, image: '/IMG PARA PAGINA SHOP/tp-link-tapo.png' },
-        ],
-    },
-    {
-        id: 'OC-729410',
-        date: '02 Feb 2026',
-        status: 'en_camino',
-        total: 6499,
-        items: [
-            { name: 'Alarma Epcom Professional Series', qty: 1, price: 6499, image: '/IMG PARA PAGINA SHOP/alarma-epcom.png' },
-        ],
-    },
-    {
-        id: 'OC-615837',
-        date: '15 Ene 2026',
-        status: 'entregado',
-        total: 3200,
-        items: [
-            { name: 'Sensor de Movimiento Hikvision DS-PD2', qty: 2, price: 1600, image: '/IMG PARA PAGINA SHOP/sensor.png' },
-        ],
-    },
-];
+// Normaliza el formato de la API al formato que esperan los componentes
+function normalizeOrder(o) {
+    return {
+        id:     o.folio || o.id,
+        date:   o.fecha,
+        status: o.status || 'procesando',
+        total:  (typeof o.total === 'number') ? o.total : parseFloat(o.total) || 0,
+        items:  (o.items || []).map(i => ({
+            name:  i.name,
+            qty:   i.quantity ?? i.qty ?? 1,
+            price: i.price,
+            image: i.image || '',
+        })),
+    };
+}
 
 const STATUS = {
     entregado:  { label: 'Entregado',  icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
@@ -48,7 +33,7 @@ const STATUS = {
 };
 
 // ── Tab: Overview ─────────────────────────────────────────────────────────────
-function TabOverview({ user, orders }) {
+function TabOverview({ user, orders, loading }) {
     const totalSpent = orders.reduce((s, o) => s + o.total, 0);
     const delivered  = orders.filter(o => o.status === 'entregado').length;
 
@@ -209,20 +194,25 @@ function OrderCard({ order }) {
 }
 
 // ── Tab: Orders ───────────────────────────────────────────────────────────────
-function TabPedidos({ orders }) {
+function TabPedidos({ orders, loading }) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="font-display text-lg font-bold text-slate-900 tracking-tight">Mis pedidos</h3>
-                    <p className="text-slate-400 text-xs font-medium mt-0.5">{orders.length} órdenes en total</p>
+                    <p className="text-slate-400 text-xs font-medium mt-0.5">{loading ? '…' : `${orders.length} órdenes en total`}</p>
                 </div>
                 <Link to="/shop" className="font-display text-[10px] font-bold uppercase tracking-wider text-blue-600 hover:text-blue-800 flex items-center gap-1.5 transition-colors">
                     Nueva compra <ArrowRight className="size-3" />
                 </Link>
             </div>
 
-            {orders.length === 0 ? (
+            {loading ? (
+                <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center">
+                    <svg className="animate-spin size-6 text-blue-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                    <p className="font-display text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Cargando pedidos...</p>
+                </div>
+            ) : orders.length === 0 ? (
                 <div className="bg-white border border-slate-100 rounded-2xl p-10 text-center">
                     <ShoppingBag className="size-10 text-slate-200 mx-auto mb-4" />
                     <p className="font-display text-sm font-bold text-slate-400">Aún no tienes pedidos</p>
@@ -240,15 +230,26 @@ function TabPedidos({ orders }) {
 }
 
 // ── Tab: Profile ──────────────────────────────────────────────────────────────
-function TabPerfil({ user }) {
+function TabPerfil({ user, updateProfile }) {
     const [editing, setEditing] = useState(false);
-    const [form, setForm] = useState({ name: user.name, email: user.email, telefono: '', ciudad: 'Ciudad de México' });
+    const [form, setForm] = useState({ name: user.name, email: user.email, telefono: user.phone || '', ciudad: '' });
     const [saved, setSaved] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSave = () => {
-        setSaved(true);
-        setEditing(false);
-        setTimeout(() => setSaved(false), 3000);
+    const handleSave = async () => {
+        setSaving(true);
+        setError('');
+        try {
+            await updateProfile({ name: form.name, phone: form.telefono });
+            setSaved(true);
+            setEditing(false);
+            setTimeout(() => setSaved(false), 3000);
+        } catch (err) {
+            setError(err.message || 'Error al guardar');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -311,9 +312,10 @@ function TabPerfil({ user }) {
                     ))}
                 </div>
                 {editing && (
-                    <div className="px-5 md:px-6 pb-5">
-                        <button onClick={handleSave} className="font-display flex items-center gap-2 bg-slate-900 hover:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
-                            <Save className="size-3.5" /> Guardar cambios
+                    <div className="px-5 md:px-6 pb-5 space-y-3">
+                        {error && <p className="font-display text-[9px] font-bold uppercase tracking-wider text-red-500">{error}</p>}
+                        <button onClick={handleSave} disabled={saving} className="font-display flex items-center gap-2 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-300 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
+                            <Save className="size-3.5" /> {saving ? 'Guardando...' : 'Guardar cambios'}
                         </button>
                     </div>
                 )}
@@ -348,18 +350,29 @@ function TabPerfil({ user }) {
 }
 
 // ── Tab: Security ─────────────────────────────────────────────────────────────
-function TabSeguridad() {
+function TabSeguridad({ changePassword }) {
     const [form, setForm] = useState({ actual: '', nueva: '', confirmar: '' });
     const [done, setDone] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState('');
     const [show, setShow] = useState({ actual: false, nueva: false, confirmar: false });
 
     const isValid = form.actual && form.nueva.length >= 8 && form.nueva === form.confirmar;
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!isValid) return;
-        setDone(true);
-        setForm({ actual: '', nueva: '', confirmar: '' });
-        setTimeout(() => setDone(false), 4000);
+        setSaving(true);
+        setError('');
+        try {
+            await changePassword(form.actual, form.nueva);
+            setDone(true);
+            setForm({ actual: '', nueva: '', confirmar: '' });
+            setTimeout(() => setDone(false), 4000);
+        } catch (err) {
+            setError(err.message || 'Error al cambiar contraseña');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -413,12 +426,14 @@ function TabSeguridad() {
                         ))}
                     </div>
 
+                    {error && <p className="mt-3 font-display text-[9px] font-bold uppercase tracking-wider text-red-500">{error}</p>}
+
                     <button
                         onClick={handleSave}
-                        disabled={!isValid}
-                        className="mt-5 font-display flex items-center gap-2 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-200 disabled:cursor-not-allowed text-white disabled:text-slate-400 px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
+                        disabled={!isValid || saving}
+                        className="mt-4 font-display flex items-center gap-2 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-200 disabled:cursor-not-allowed text-white disabled:text-slate-400 px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
                     >
-                        <Save className="size-3.5" /> Actualizar contraseña
+                        <Save className="size-3.5" /> {saving ? 'Actualizando...' : 'Actualizar contraseña'}
                     </button>
 
                     {done && (
@@ -472,10 +487,19 @@ function TabSeguridad() {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Cuenta() {
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated, updateProfile, changePassword } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('inicio');
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [orders, setOrders] = useState([]);
+    const [ordersLoading, setOrdersLoading] = useState(true);
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        api.getMyOrders()
+            .then(data => setOrders((data || []).map(normalizeOrder)))
+            .catch(() => {})
+            .finally(() => setOrdersLoading(false));
+    }, [isAuthenticated]);
 
     if (!isAuthenticated) {
         navigate('/login');
@@ -489,8 +513,8 @@ export default function Cuenta() {
         { id: 'seguridad', icon: Shield,          label: 'Seguridad' },
     ];
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await logout();
         navigate('/');
     };
 
@@ -599,10 +623,10 @@ export default function Cuenta() {
                             })}
                         </div>
 
-                        {activeTab === 'inicio'    && <TabOverview  user={user} orders={MOCK_ORDERS} />}
-                        {activeTab === 'pedidos'   && <TabPedidos   orders={MOCK_ORDERS} />}
-                        {activeTab === 'perfil'    && <TabPerfil    user={user} />}
-                        {activeTab === 'seguridad' && <TabSeguridad />}
+                        {activeTab === 'inicio'    && <TabOverview  user={user} orders={orders} loading={ordersLoading} />}
+                        {activeTab === 'pedidos'   && <TabPedidos   orders={orders} loading={ordersLoading} />}
+                        {activeTab === 'perfil'    && <TabPerfil    user={user} updateProfile={updateProfile} />}
+                        {activeTab === 'seguridad' && <TabSeguridad changePassword={changePassword} />}
                     </div>
                 </div>
             </main>

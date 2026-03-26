@@ -6,6 +6,27 @@ $db     = getDB();
 $method = $_SERVER['REQUEST_METHOD'];
 $id     = $_GET['id'] ?? null;
 
+// ── GET my orders (filtered by logged-in user's email) ─────────────────────────
+if ($method === 'GET' && !$id && isset($_GET['me'])) {
+    $payload = requireAuth();
+    $email   = $payload['email'] ?? '';
+    $stmt    = $db->prepare("SELECT * FROM orders WHERE email = ? ORDER BY fecha_creacion DESC");
+    $stmt->execute([$email]);
+    $orders  = $stmt->fetchAll();
+    foreach ($orders as &$order) {
+        $s = $db->prepare("SELECT * FROM order_items WHERE order_id = ?");
+        $s->execute([$order['id']]);
+        $items = $s->fetchAll();
+        foreach ($items as &$item) {
+            $item['price']    = (float)$item['price'];
+            $item['quantity'] = (int)$item['quantity'];
+        }
+        $order['items'] = $items;
+        $order['total'] = (float)$order['total'];
+    }
+    ok($orders);
+}
+
 // ── GET all orders ─────────────────────────────────────────────────────────────
 if ($method === 'GET' && !$id) {
     $orders = $db->query("SELECT * FROM orders ORDER BY fecha_creacion DESC")->fetchAll();

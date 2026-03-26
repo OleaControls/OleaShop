@@ -48,6 +48,7 @@ export const api = {
     createPaymentIntent: (amount) => request('stripe.php', { method: 'POST', body: JSON.stringify({ amount }) }),
 
     // ── Orders ────────────────────────────────────────────────────────────────
+    getMyOrders:        ()               => request('orders.php?me=1'),
     getOrders:          ()               => request('orders.php'),
     createOrder:        (order)          => request('orders.php', { method: 'POST', body: JSON.stringify(order) }),
     updateOrderPayment: (id, pagoStatus) => request(`orders.php?id=${id}`, { method: 'PATCH', body: JSON.stringify({ pagoStatus }) }),

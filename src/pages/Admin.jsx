@@ -54,14 +54,14 @@ function StatCard({ icon: Icon, label, value, sub, trend, color = 'blue' }) {
                     <Icon className="size-5 text-white" />
                 </div>
                 {trend !== undefined && (
-                    <span className={`font-display text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 ${trend >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <span className={`font-display text-[12px] font-bold uppercase tracking-wider flex items-center gap-0.5 ${trend >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                         {trend >= 0 ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />}{Math.abs(trend)}%
                     </span>
                 )}
             </div>
             <p className="font-display text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{value}</p>
-            <p className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">{label}</p>
-            {sub && <p className="text-[10px] font-medium text-slate-400 mt-0.5">{sub}</p>}
+            <p className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 mt-1">{label}</p>
+            {sub && <p className="text-[13px] font-medium text-slate-400 mt-0.5">{sub}</p>}
         </div>
     );
 }
@@ -87,16 +87,16 @@ function TabDashboard({ orders, setTab }) {
             <div className="grid grid-cols-1 gap-6">
                 <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
                     <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50">
-                        <h3 className="font-display text-sm font-bold text-slate-900 uppercase tracking-wider">Últimas órdenes</h3>
-                        <button onClick={() => setTab('ordenes')} className="font-display text-[9px] font-bold uppercase tracking-wider text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
+                        <h3 className="font-display text-basefont-bold text-slate-900 uppercase tracking-wider">Últimas órdenes</h3>
+                        <button onClick={() => setTab('ordenes')} className="font-display text-[12px] font-bold uppercase tracking-wider text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
                             Ver todas <ChevronRight className="size-3" />
                         </button>
                     </div>
                     {orders.length === 0 ? (
                         <div className="py-12 text-center">
                             <Boxes className="size-8 text-slate-200 mx-auto mb-3" />
-                            <p className="font-display text-xs font-bold text-slate-400 uppercase tracking-wider">Sin órdenes recibidas</p>
-                            <p className="text-slate-300 text-[10px] font-medium mt-1">Las órdenes aparecerán aquí cuando los clientes realicen compras</p>
+                            <p className="font-display text-basefont-bold text-slate-400 uppercase tracking-wider">Sin órdenes recibidas</p>
+                            <p className="text-slate-300 text-[13px] font-medium mt-1">Las órdenes aparecerán aquí cuando los clientes realicen compras</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-slate-50">
@@ -110,12 +110,12 @@ function TabDashboard({ orders, setTab }) {
                                             <SIcon className={`size-4 ${s.color.split(' ')[0]}`} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-display text-xs font-bold text-slate-900">{order.shipping?.nombre || 'Cliente'}</p>
-                                            <p className="text-slate-400 text-[10px] font-medium">{order.folio} · {order.fecha}</p>
+                                            <p className="font-display text-basefont-bold text-slate-900">{order.shipping?.nombre || 'Cliente'}</p>
+                                            <p className="text-slate-400 text-[13px] font-medium">{order.folio} · {order.fecha}</p>
                                         </div>
                                         <div className="text-right shrink-0 space-y-0.5">
-                                            <p className="font-display text-xs font-bold text-slate-900">${order.total.toLocaleString()}</p>
-                                            <span className={`font-display text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${ps.color}`}>{ps.label}</span>
+                                            <p className="font-display text-basefont-bold text-slate-900">${order.total.toLocaleString()}</p>
+                                            <span className={`font-display text-[11px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${ps.color}`}>{ps.label}</span>
                                         </div>
                                     </div>
                                 );
@@ -281,7 +281,7 @@ function OrderModal({ order, onClose, onSave }) {
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50 shrink-0">
                     <div>
-                        <p className="font-display text-[9px] font-bold uppercase tracking-widest text-blue-600">{order.folio}</p>
+                        <p className="font-display text-[12px] font-bold uppercase tracking-widest text-blue-600">{order.folio}</p>
                         <h3 className="font-display text-base font-bold text-slate-900">{order.shipping?.nombre}</h3>
                     </div>
                     <button onClick={onClose} className="size-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
@@ -294,17 +294,17 @@ function OrderModal({ order, onClose, onSave }) {
                     {/* Client + Address */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-1.5">
-                            <p className="font-display text-[8px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 mb-2"><Users className="size-3"/>Cliente</p>
-                            <p className="font-display text-sm font-bold text-slate-900">{order.shipping?.nombre}</p>
-                            <p className="text-slate-500 text-xs flex items-center gap-1.5"><Mail className="size-3"/>{order.shipping?.email}</p>
-                            <p className="text-slate-500 text-xs flex items-center gap-1.5"><Phone className="size-3"/>{order.shipping?.telefono}</p>
+                            <p className="font-display text-[11px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 mb-2"><Users className="size-3"/>Cliente</p>
+                            <p className="font-display text-basefont-bold text-slate-900">{order.shipping?.nombre}</p>
+                            <p className="text-slate-500 text-baseflex items-center gap-1.5"><Mail className="size-3"/>{order.shipping?.email}</p>
+                            <p className="text-slate-500 text-baseflex items-center gap-1.5"><Phone className="size-3"/>{order.shipping?.telefono}</p>
                         </div>
                         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-1.5">
-                            <p className="font-display text-[8px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 mb-2"><MapPin className="size-3"/>Dirección</p>
-                            <p className="text-slate-700 text-xs font-medium leading-relaxed">{order.shipping?.calle}</p>
-                            <p className="text-slate-500 text-xs">{order.shipping?.colonia}, CP {order.shipping?.cp}</p>
-                            <p className="text-slate-500 text-xs">{order.shipping?.ciudad}, {order.shipping?.estado}</p>
-                            {order.shipping?.referencias && <p className="text-slate-400 text-[10px] italic">{order.shipping.referencias}</p>}
+                            <p className="font-display text-[11px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 mb-2"><MapPin className="size-3"/>Dirección</p>
+                            <p className="text-slate-700 text-basefont-medium leading-relaxed">{order.shipping?.calle}</p>
+                            <p className="text-slate-500 text-base">{order.shipping?.colonia}, CP {order.shipping?.cp}</p>
+                            <p className="text-slate-500 text-base">{order.shipping?.ciudad}, {order.shipping?.estado}</p>
+                            {order.shipping?.referencias && <p className="text-slate-400 text-[13px] italic">{order.shipping.referencias}</p>}
                         </div>
                     </div>
 
@@ -312,39 +312,39 @@ function OrderModal({ order, onClose, onSave }) {
                     <div className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden">
                         <div className="px-4 py-2.5 border-b border-slate-100 flex items-center gap-1.5">
                             <Boxes className="size-3.5 text-slate-400"/>
-                            <p className="font-display text-[8px] font-bold uppercase tracking-widest text-slate-400">Productos / Servicios</p>
+                            <p className="font-display text-[11px] font-bold uppercase tracking-widest text-slate-400">Productos / Servicios</p>
                         </div>
                         <div className="divide-y divide-slate-100">
                             {order.items?.map((item, i) => (
                                 <div key={i} className="flex items-center justify-between px-4 py-2.5 gap-3">
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-display text-[10px] font-bold text-slate-900 leading-tight">{item.name}</p>
-                                        <p className="text-slate-400 text-[9px]">Cant. {item.quantity} × ${item.price.toLocaleString()}</p>
+                                        <p className="font-display text-[13px] font-bold text-slate-900 leading-tight">{item.name}</p>
+                                        <p className="text-slate-400 text-[12px]">Cant. {item.quantity} × ${item.price.toLocaleString()}</p>
                                     </div>
-                                    <span className="font-display text-xs font-bold text-slate-900 shrink-0">${(item.price * item.quantity).toLocaleString()}</span>
+                                    <span className="font-display text-basefont-bold text-slate-900 shrink-0">${(item.price * item.quantity).toLocaleString()}</span>
                                 </div>
                             ))}
                             <div className="flex justify-between items-center px-4 py-3 bg-white">
-                                <span className="font-display text-[10px] font-bold uppercase tracking-wider text-blue-600">Total</span>
-                                <span className="font-display text-base font-bold text-slate-900">${order.total.toLocaleString()} <span className="text-[9px] font-semibold text-slate-400">MXN</span></span>
+                                <span className="font-display text-[13px] font-bold uppercase tracking-wider text-blue-600">Total</span>
+                                <span className="font-display text-base font-bold text-slate-900">${order.total.toLocaleString()} <span className="text-[12px] font-semibold text-slate-400">MXN</span></span>
                             </div>
                         </div>
                     </div>
 
                     {/* Payment */}
                     <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
-                        <p className="font-display text-[8px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 mb-3"><CreditCard className="size-3"/>Pago</p>
+                        <p className="font-display text-[11px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1 mb-3"><CreditCard className="size-3"/>Pago</p>
                         <div className="flex items-center justify-between gap-3">
                             <div>
-                                <p className="font-display text-xs font-bold text-slate-900">{METODO_LABEL[order.payment?.metodo] || '—'}</p>
-                                {order.payment?.ultimosCuatro && <p className="text-slate-400 text-[10px] mt-0.5">**** **** **** {order.payment.ultimosCuatro}</p>}
+                                <p className="font-display text-basefont-bold text-slate-900">{METODO_LABEL[order.payment?.metodo] || '—'}</p>
+                                {order.payment?.ultimosCuatro && <p className="text-slate-400 text-[13px] mt-0.5">**** **** **** {order.payment.ultimosCuatro}</p>}
                             </div>
                             <div className="flex items-center gap-2">
                                 <select value={pagoStatus} onChange={e => setPago(e.target.value)}
-                                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-display text-[10px] font-bold text-slate-700 focus:outline-none focus:border-blue-400 transition-all cursor-pointer">
+                                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-display text-[13px] font-bold text-slate-700 focus:outline-none focus:border-blue-400 transition-all cursor-pointer">
                                     {Object.entries(PAGO_STATUS).map(([k,v]) => <option key={k} value={k}>{v.label}</option>)}
                                 </select>
-                                <span className={`font-display text-[8px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${ps.color}`}>{ps.label}</span>
+                                <span className={`font-display text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${ps.color}`}>{ps.label}</span>
                             </div>
                         </div>
                     </div>
@@ -352,14 +352,14 @@ function OrderModal({ order, onClose, onSave }) {
 
                 <div className="px-6 pb-5 pt-3 border-t border-slate-50 flex gap-3 shrink-0">
                     <button onClick={() => generateOrderPDF(order)}
-                        className="font-display flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider transition-all">
+                        className="font-display flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-baseuppercase tracking-wider transition-all">
                         <FileText className="size-3.5" /> PDF
                     </button>
-                    <button onClick={onClose} className="font-display px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:border-slate-300 font-bold text-xs uppercase tracking-wider transition-all">
+                    <button onClick={onClose} className="font-display px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:border-slate-300 font-bold text-baseuppercase tracking-wider transition-all">
                         Cerrar
                     </button>
                     <button onClick={() => onSave({ ...order, pagoStatus })}
-                        className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-blue-600 text-white py-2.5 rounded-xl font-display font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
+                        className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-blue-600 text-white py-2.5 rounded-xl font-display font-bold text-baseuppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
                         <Check className="size-3.5" /> Guardar
                     </button>
                 </div>
@@ -397,15 +397,15 @@ function TabOrdenes({ orders, setOrders }) {
     return (
         <div className="space-y-5">
             <div>
-                <h3 className="font-display text-lg font-bold text-slate-900 tracking-tight">Órdenes de compra</h3>
-                <p className="text-slate-400 text-xs font-medium mt-0.5">{orders.length} órdenes recibidas · {orders.filter(o=>o.pagoStatus==='confirmado').length} pagos confirmados</p>
+                <h3 className="font-display text-xl font-bold text-slate-900 tracking-tight">Órdenes de compra</h3>
+                <p className="text-slate-400 text-basefont-medium mt-0.5">{orders.length} órdenes recibidas · {orders.filter(o=>o.pagoStatus==='confirmado').length} pagos confirmados</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-300" />
                     <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por cliente, folio o email…"
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-xs placeholder:text-slate-300 text-slate-700 focus:outline-none focus:border-blue-400 transition-all" />
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-baseplaceholder:text-slate-300 text-slate-700 focus:outline-none focus:border-blue-400 transition-all" />
                 </div>
             </div>
 
@@ -418,7 +418,7 @@ function TabOrdenes({ orders, setOrders }) {
                     { key:'rechazado',  label:'Rechazado'   },
                 ].map(pill => (
                     <button key={pill.key} onClick={() => setFilter(pill.key)}
-                        className={`font-display text-[9px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all ${filterPago===pill.key ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
+                        className={`font-display text-[12px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all ${filterPago===pill.key ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
                         {pill.label} <span className={filterPago===pill.key?'text-blue-200':'text-slate-400'}>({pillCounts[pill.key]})</span>
                     </button>
                 ))}
@@ -428,7 +428,7 @@ function TabOrdenes({ orders, setOrders }) {
                 {filtered.length === 0 ? (
                     <div className="py-16 text-center">
                         <Boxes className="size-8 text-slate-200 mx-auto mb-3" />
-                        <p className="font-display text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        <p className="font-display text-basefont-bold text-slate-400 uppercase tracking-wider">
                             {orders.length === 0 ? 'Sin órdenes aún — aparecerán cuando los clientes realicen compras' : 'Sin resultados'}
                         </p>
                     </div>
@@ -439,17 +439,17 @@ function TabOrdenes({ orders, setOrders }) {
                             return (
                                 <div key={order.id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50/60 transition-colors group">
                                     {/* Avatar */}
-                                    <div className="size-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-display font-black text-sm text-white shrink-0">
+                                    <div className="size-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-display font-black text-basetext-white shrink-0">
                                         {(order.shipping?.nombre||'?').charAt(0).toUpperCase()}
                                     </div>
 
                                     {/* Main info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="font-display text-xs font-bold text-slate-900">{order.shipping?.nombre}</span>
-                                            <span className={`font-display text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${ps.color}`}>{ps.label}</span>
+                                            <span className="font-display text-basefont-bold text-slate-900">{order.shipping?.nombre}</span>
+                                            <span className={`font-display text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${ps.color}`}>{ps.label}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[9px] font-medium text-slate-400">
+                                        <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[12px] font-medium text-slate-400">
                                             <span className="text-blue-500 font-bold">{order.folio}</span>
                                             <span>·</span>
                                             <span>{order.fecha}</span>
@@ -458,7 +458,7 @@ function TabOrdenes({ orders, setOrders }) {
                                             <span>·</span>
                                             <span className="flex items-center gap-0.5"><MapPin className="size-2.5"/>{order.shipping?.ciudad}</span>
                                         </div>
-                                        <p className="text-slate-400 text-[9px] font-medium mt-0.5 line-clamp-1">
+                                        <p className="text-slate-400 text-[12px] font-medium mt-0.5 line-clamp-1">
                                             {(order.items||[]).map(i=>`${i.name} ×${i.quantity}`).join(' · ')}
                                         </p>
                                     </div>
@@ -466,8 +466,8 @@ function TabOrdenes({ orders, setOrders }) {
                                     {/* Total + actions */}
                                     <div className="flex items-center gap-3 shrink-0">
                                         <div className="text-right hidden sm:block">
-                                            <p className="font-display text-sm font-bold text-slate-900">${order.total.toLocaleString()}</p>
-                                            <p className="font-display text-[8px] font-semibold text-slate-400 uppercase">MXN</p>
+                                            <p className="font-display text-basefont-bold text-slate-900">${order.total.toLocaleString()}</p>
+                                            <p className="font-display text-[11px] font-semibold text-slate-400 uppercase">MXN</p>
                                         </div>
                                         <button onClick={() => generateOrderPDF(order)}
                                             title="Generar PDF"
@@ -522,70 +522,70 @@ function ProductModal({ product, onClose, onSave }) {
 
                 <div className="overflow-y-auto flex-1 p-6 space-y-4">
                     <div>
-                        <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Nombre del producto / servicio *</label>
+                        <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Nombre del producto / servicio *</label>
                         <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ej. Kit Cámaras Hikvision 4K NVR"
-                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Categoría *</label>
+                            <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Categoría *</label>
                             <select value={form.category} onChange={e => set('category', e.target.value)}
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 focus:outline-none focus:border-blue-400 transition-all">
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 focus:outline-none focus:border-blue-400 transition-all">
                                 {CATEGORY_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Precio (MXN) *</label>
+                            <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Precio (MXN) *</label>
                             <input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="1250"
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Stock</label>
+                            <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Stock</label>
                             <input type="number" value={form.stock} onChange={e => set('stock', e.target.value)} placeholder="10"
-                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
                         </div>
                         <div className="flex flex-col justify-center gap-3">
                             <div>
-                                <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Visible en tienda</label>
+                                <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Visible en tienda</label>
                                 <button onClick={() => set('activo', !form.activo)} className="flex items-center gap-2">
                                     {form.activo
                                         ? <ToggleRight className="size-7 text-blue-600" />
                                         : <ToggleLeft className="size-7 text-slate-300" />}
-                                    <span className={`font-display text-[10px] font-bold uppercase tracking-wider ${form.activo ? 'text-blue-600' : 'text-slate-400'}`}>{form.activo ? 'Activo' : 'Inactivo'}</span>
+                                    <span className={`font-display text-[13px] font-bold uppercase tracking-wider ${form.activo ? 'text-blue-600' : 'text-slate-400'}`}>{form.activo ? 'Activo' : 'Inactivo'}</span>
                                 </button>
                             </div>
                             <div>
-                                <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Página principal</label>
+                                <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Página principal</label>
                                 <button onClick={() => set('destacado', !form.destacado)} className="flex items-center gap-2">
                                     {form.destacado
                                         ? <ToggleRight className="size-7 text-amber-500" />
                                         : <ToggleLeft className="size-7 text-slate-300" />}
-                                    <span className={`font-display text-[10px] font-bold uppercase tracking-wider ${form.destacado ? 'text-amber-500' : 'text-slate-400'}`}>{form.destacado ? 'Destacado ★' : 'No destacado'}</span>
+                                    <span className={`font-display text-[13px] font-bold uppercase tracking-wider ${form.destacado ? 'text-amber-500' : 'text-slate-400'}`}>{form.destacado ? 'Destacado ★' : 'No destacado'}</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">URL de imagen</label>
+                        <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">URL de imagen</label>
                         <input value={form.image} onChange={e => set('image', e.target.value)} placeholder="/IMG PARA PAGINA SHOP/producto.png"
-                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
                     </div>
 
                     <div>
-                        <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Descripción</label>
+                        <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Descripción</label>
                         <textarea value={form.description} onChange={e => set('description', e.target.value)} rows={3}
-                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 resize-none focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 resize-none focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
                     </div>
 
                     <div>
                         <div className="flex items-center justify-between mb-1.5">
-                            <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400">Especificaciones / características</label>
-                            <button onClick={addFeature} className="font-display text-[9px] font-bold uppercase tracking-wider text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
+                            <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400">Especificaciones / características</label>
+                            <button onClick={addFeature} className="font-display text-[12px] font-bold uppercase tracking-wider text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
                                 <Plus className="size-3" /> Agregar
                             </button>
                         </div>
@@ -593,7 +593,7 @@ function ProductModal({ product, onClose, onSave }) {
                             {form.features?.map((f, i) => (
                                 <div key={i} className="flex items-center gap-2">
                                     <input value={f} onChange={e => setFeature(i, e.target.value)} placeholder={`Característica ${i+1}`}
-                                        className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                                        className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
                                     <button onClick={() => removeFeature(i)} className="size-7 rounded-lg bg-red-50 hover:bg-red-100 text-red-400 flex items-center justify-center transition-colors">
                                         <X className="size-3" />
                                     </button>
@@ -604,10 +604,10 @@ function ProductModal({ product, onClose, onSave }) {
                 </div>
 
                 <div className="px-6 pb-5 pt-3 border-t border-slate-50 flex gap-3 shrink-0">
-                    <button onClick={onClose} className="font-display px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:border-slate-300 font-bold text-xs uppercase tracking-wider transition-all">Cancelar</button>
+                    <button onClick={onClose} className="font-display px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:border-slate-300 font-bold text-baseuppercase tracking-wider transition-all">Cancelar</button>
                     <button onClick={() => { if (isValid) onSave({ ...form, price: Number(form.price), stock: Number(form.stock) }); }}
                         disabled={!isValid}
-                        className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-200 disabled:cursor-not-allowed text-white disabled:text-slate-400 py-2.5 rounded-xl font-display font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
+                        className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-blue-600 disabled:bg-slate-200 disabled:cursor-not-allowed text-white disabled:text-slate-400 py-2.5 rounded-xl font-display font-bold text-baseuppercase tracking-wider transition-all shadow-md active:scale-[0.98]">
                         <Check className="size-3.5" /> {isNew ? 'Crear producto' : 'Guardar cambios'}
                     </button>
                 </div>
@@ -636,10 +636,10 @@ function TabProductos() {
         <div className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h3 className="font-display text-lg font-bold text-slate-900 tracking-tight">Productos y servicios</h3>
-                    <p className="text-slate-400 text-xs font-medium mt-0.5">{products.length} items · {products.filter(p=>p.activo!==false).length} activos · <span className="text-amber-500 font-bold">★ {products.filter(p=>p.destacado).length}/4 en página principal</span></p>
+                    <h3 className="font-display text-xl font-bold text-slate-900 tracking-tight">Productos y servicios</h3>
+                    <p className="text-slate-400 text-basefont-medium mt-0.5">{products.length} items · {products.filter(p=>p.activo!==false).length} activos · <span className="text-amber-500 font-bold">★ {products.filter(p=>p.destacado).length}/4 en página principal</span></p>
                 </div>
-                <button onClick={() => setNew(true)} className="font-display flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-600/20 active:scale-[0.98] self-start sm:self-auto">
+                <button onClick={() => setNew(true)} className="font-display flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-baseuppercase tracking-wider transition-all shadow-md shadow-blue-600/20 active:scale-[0.98] self-start sm:self-auto">
                     <Plus className="size-3.5" /> Nuevo producto
                 </button>
             </div>
@@ -647,7 +647,7 @@ function TabProductos() {
             <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-300" />
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar producto o categoría…"
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-xs placeholder:text-slate-300 text-slate-700 focus:outline-none focus:border-blue-400 transition-all" />
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl font-display text-baseplaceholder:text-slate-300 text-slate-700 focus:outline-none focus:border-blue-400 transition-all" />
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
@@ -665,22 +665,22 @@ function TabProductos() {
                                 )}
                                 <span className={`absolute top-2 left-2 font-display text-[7px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border ${cc}`}>{p.category}</span>
                                 {inactive && <span className="absolute top-2 right-2 font-display text-[7px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-50 border border-red-200 text-red-500">Off</span>}
-                                {p.destacado && <span className="absolute bottom-2 right-2 text-amber-400 text-sm">★</span>}
+                                {p.destacado && <span className="absolute bottom-2 right-2 text-amber-400 text-base">★</span>}
                             </div>
 
                             <div className="p-3">
-                                <h4 className="font-display text-[10px] font-bold text-slate-900 leading-tight line-clamp-2 mb-1.5">{p.name}</h4>
+                                <h4 className="font-display text-[13px] font-bold text-slate-900 leading-tight line-clamp-2 mb-1.5">{p.name}</h4>
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="font-display text-sm font-bold text-slate-900">${Number(p.price).toLocaleString()}</span>
-                                    <span className="font-display text-[8px] font-semibold text-slate-400 uppercase">×{p.stock ?? '—'}</span>
+                                    <span className="font-display text-basefont-bold text-slate-900">${Number(p.price).toLocaleString()}</span>
+                                    <span className="font-display text-[11px] font-semibold text-slate-400 uppercase">×{p.stock ?? '—'}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <button onClick={() => toggleActive(p.id)}
-                                        className={`flex-1 font-display text-[8px] font-bold uppercase tracking-wide py-1.5 rounded-lg border transition-all ${inactive ? 'border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100' : 'border-slate-200 text-slate-500 bg-slate-50 hover:bg-slate-100'}`}>
+                                        className={`flex-1 font-display text-[11px] font-bold uppercase tracking-wide py-1.5 rounded-lg border transition-all ${inactive ? 'border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100' : 'border-slate-200 text-slate-500 bg-slate-50 hover:bg-slate-100'}`}>
                                         {inactive ? 'Activar' : 'Desact.'}
                                     </button>
                                     <button onClick={() => toggleFeatured(p.id)} title={p.destacado ? 'Quitar de página principal' : 'Poner en página principal'}
-                                        className={`size-7 rounded-lg border flex items-center justify-center transition-all text-xs ${p.destacado ? 'bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100' : 'bg-slate-50 border-slate-200 text-slate-300 hover:text-amber-400 hover:border-amber-200'}`}>
+                                        className={`size-7 rounded-lg border flex items-center justify-center transition-all text-base${p.destacado ? 'bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100' : 'bg-slate-50 border-slate-200 text-slate-300 hover:text-amber-400 hover:border-amber-200'}`}>
                                         ★
                                     </button>
                                     <button onClick={() => setEdit(p)} className="size-7 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-500 flex items-center justify-center transition-all">
@@ -708,10 +708,10 @@ function TabProductos() {
                             <Trash2 className="size-6 text-red-500" />
                         </div>
                         <h4 className="font-display text-base font-bold text-slate-900 mb-2">¿Eliminar producto?</h4>
-                        <p className="text-slate-400 text-xs font-medium mb-5">Esta acción no se puede deshacer.</p>
+                        <p className="text-slate-400 text-basefont-medium mb-5">Esta acción no se puede deshacer.</p>
                         <div className="flex gap-3">
-                            <button onClick={() => setConfirm(null)} className="flex-1 font-display text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all">Cancelar</button>
-                            <button onClick={() => { deleteProduct(confirmDel); setConfirm(null); }} className="flex-1 font-display text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all shadow-md">Eliminar</button>
+                            <button onClick={() => setConfirm(null)} className="flex-1 font-display text-basefont-bold uppercase tracking-wider py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all">Cancelar</button>
+                            <button onClick={() => { deleteProduct(confirmDel); setConfirm(null); }} className="flex-1 font-display text-basefont-bold uppercase tracking-wider py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all shadow-md">Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -740,8 +740,8 @@ function TabPagos({ orders, setOrders }) {
     return (
         <div className="space-y-5">
             <div>
-                <h3 className="font-display text-lg font-bold text-slate-900 tracking-tight">Pagos y ventas</h3>
-                <p className="text-slate-400 text-xs font-medium mt-0.5">Gestiona el estado de los pagos de cada orden</p>
+                <h3 className="font-display text-xl font-bold text-slate-900 tracking-tight">Pagos y ventas</h3>
+                <p className="text-slate-400 text-basefont-medium mt-0.5">Gestiona el estado de los pagos de cada orden</p>
             </div>
 
             {/* Totals */}
@@ -757,7 +757,7 @@ function TabPagos({ orders, setOrders }) {
             <div className="flex gap-2">
                 {['todos','pendiente','confirmado','rechazado'].map(k => (
                     <button key={k} onClick={() => setFilter(k)}
-                        className={`font-display text-[9px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all ${filter===k ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
+                        className={`font-display text-[12px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all ${filter===k ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
                         {k==='todos'?'Todos':PAGO_STATUS[k]?.label}
                     </button>
                 ))}
@@ -768,7 +768,7 @@ function TabPagos({ orders, setOrders }) {
                 {filtered.length === 0 ? (
                     <div className="py-14 text-center">
                         <CreditCard className="size-8 text-slate-200 mx-auto mb-3" />
-                        <p className="font-display text-xs font-bold text-slate-400 uppercase tracking-wider">Sin pagos que mostrar</p>
+                        <p className="font-display text-basefont-bold text-slate-400 uppercase tracking-wider">Sin pagos que mostrar</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-slate-50">
@@ -779,24 +779,24 @@ function TabPagos({ orders, setOrders }) {
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2 flex-wrap mb-1">
-                                                <span className="font-display text-xs font-bold text-slate-900">{order.shipping?.nombre}</span>
-                                                <span className="font-display text-[9px] text-blue-600 font-bold uppercase tracking-wider">{order.folio}</span>
-                                                <span className="text-slate-400 text-[9px] font-medium">{order.fecha}</span>
+                                                <span className="font-display text-basefont-bold text-slate-900">{order.shipping?.nombre}</span>
+                                                <span className="font-display text-[12px] text-blue-600 font-bold uppercase tracking-wider">{order.folio}</span>
+                                                <span className="text-slate-400 text-[12px] font-medium">{order.fecha}</span>
                                             </div>
-                                            <div className="flex items-center gap-3 flex-wrap text-[10px] font-medium text-slate-400">
+                                            <div className="flex items-center gap-3 flex-wrap text-[13px] font-medium text-slate-400">
                                                 <span className="flex items-center gap-1"><CreditCard className="size-3" />{METODO_LABEL[order.payment?.metodo] || '—'}</span>
                                                 {order.payment?.ultimosCuatro && <span>•••• {order.payment.ultimosCuatro}</span>}
-                                                <span className="flex items-center gap-1 font-display font-bold text-sm text-slate-900">${order.total.toLocaleString()} <span className="text-[9px] font-semibold text-slate-400">MXN</span></span>
+                                                <span className="flex items-center gap-1 font-display font-bold text-basetext-slate-900">${order.total.toLocaleString()} <span className="text-[12px] font-semibold text-slate-400">MXN</span></span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">
-                                            <span className={`font-display text-[8px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${ps.color}`}>{ps.label}</span>
+                                            <span className={`font-display text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${ps.color}`}>{ps.label}</span>
                                             {order.pagoStatus === 'pendiente' && (
                                                 <div className="flex gap-1">
-                                                    <button onClick={() => updatePago(order.id, 'confirmado')} className="font-display text-[8px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-colors">
+                                                    <button onClick={() => updatePago(order.id, 'confirmado')} className="font-display text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-colors">
                                                         Confirmar
                                                     </button>
-                                                    <button onClick={() => updatePago(order.id, 'rechazado')} className="font-display text-[8px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-500 hover:bg-red-100 transition-colors">
+                                                    <button onClick={() => updatePago(order.id, 'rechazado')} className="font-display text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-500 hover:bg-red-100 transition-colors">
                                                         Rechazar
                                                     </button>
                                                 </div>
@@ -854,13 +854,13 @@ export default function Admin() {
                         <Shield className="size-5 text-white" />
                     </div>
                     <div>
-                        <p className="font-display text-xs font-bold text-white tracking-tight">Olea Controls</p>
-                        <p className="font-display text-[8px] font-semibold uppercase tracking-widest text-slate-500">Admin Panel</p>
+                        <p className="font-display text-basefont-bold text-white tracking-tight">Olea Controls</p>
+                        <p className="font-display text-[11px] font-semibold uppercase tracking-widest text-slate-500">Admin Panel</p>
                     </div>
                 </div>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-                <p className="font-display text-[8px] font-bold uppercase tracking-[0.25em] text-slate-600 px-3 mb-2">Menú</p>
+                <p className="font-display text-[11px] font-bold uppercase tracking-[0.25em] text-slate-600 px-3 mb-2">Menú</p>
                 {tabs.map(t => {
                     const Icon = t.icon;
                     const active = tab === t.id;
@@ -868,9 +868,9 @@ export default function Admin() {
                         <button key={t.id} onClick={() => { setTab(t.id); setSidebar(false); }}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
                             <Icon className="size-4 shrink-0" />
-                            <span className="font-display text-[10px] font-bold uppercase tracking-wider flex-1 text-left">{t.label}</span>
+                            <span className="font-display text-[13px] font-bold uppercase tracking-wider flex-1 text-left">{t.label}</span>
                             {t.badge > 0 && (
-                                <span className={`font-display text-[8px] font-black min-w-[20px] h-5 rounded-full flex items-center justify-center px-1 ${active ? 'bg-white text-blue-600' : 'bg-red-500 text-white'}`}>{t.badge}</span>
+                                <span className={`font-display text-[11px] font-black min-w-[20px] h-5 rounded-full flex items-center justify-center px-1 ${active ? 'bg-white text-blue-600' : 'bg-red-500 text-white'}`}>{t.badge}</span>
                             )}
                         </button>
                     );
@@ -879,11 +879,11 @@ export default function Admin() {
             <div className="px-3 pb-5 border-t border-white/[0.06] pt-3 space-y-0.5">
                 <Link to="/" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white/5 hover:text-white transition-all">
                     <Home className="size-4 shrink-0" />
-                    <span className="font-display text-[10px] font-bold uppercase tracking-wider">Ver tienda</span>
+                    <span className="font-display text-[13px] font-bold uppercase tracking-wider">Ver tienda</span>
                 </Link>
                 <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500/70 hover:bg-red-500/10 hover:text-red-400 transition-all">
                     <LogOut className="size-4 shrink-0" />
-                    <span className="font-display text-[10px] font-bold uppercase tracking-wider">Cerrar sesión</span>
+                    <span className="font-display text-[13px] font-bold uppercase tracking-wider">Cerrar sesión</span>
                 </button>
             </div>
         </div>
@@ -909,7 +909,7 @@ export default function Admin() {
                         <button onClick={() => setSidebar(true)} className="size-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 lg:hidden transition-colors">
                             <Menu className="size-4" />
                         </button>
-                        <h1 className="font-display text-sm font-bold text-slate-900 uppercase tracking-wider">
+                        <h1 className="font-display text-basefont-bold text-slate-900 uppercase tracking-wider">
                             {tabs.find(t => t.id === tab)?.label}
                         </h1>
                     </div>
@@ -919,14 +919,14 @@ export default function Admin() {
                                 <Bell className="size-4" />
                             </button>
                             {(pendingNew + pendingPago) > 0 && (
-                                <span className="absolute -top-1 -right-1 size-4 bg-red-500 text-white font-display font-black text-[8px] rounded-full flex items-center justify-center">{pendingNew + pendingPago}</span>
+                                <span className="absolute -top-1 -right-1 size-4 bg-red-500 text-white font-display font-black text-[11px] rounded-full flex items-center justify-center">{pendingNew + pendingPago}</span>
                             )}
                         </div>
                         <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 bg-slate-100 rounded-xl">
                             <div className="size-6 rounded-lg bg-blue-600 flex items-center justify-center">
                                 <Shield className="size-3.5 text-white" />
                             </div>
-                            <span className="font-display text-[10px] font-bold uppercase tracking-wider text-slate-700 hidden sm:block">Admin</span>
+                            <span className="font-display text-[13px] font-bold uppercase tracking-wider text-slate-700 hidden sm:block">Admin</span>
                         </div>
                     </div>
                 </header>
