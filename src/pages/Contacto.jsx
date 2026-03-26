@@ -10,7 +10,7 @@ const contactInfo = [
     {
         icon: Phone,
         title: 'Teléfono',
-        lines: ['+52 (55) 1234 5678', 'Lun–Vie 9:00–18:00'],
+        lines: ['55 7919 2845', 'Lun–Vie 10:00–19:00'],
     },
     {
         icon: Mail,
@@ -20,7 +20,7 @@ const contactInfo = [
     {
         icon: Clock,
         title: 'Horario',
-        lines: ['Lunes a Viernes', '9:00 am – 6:00 pm'],
+        lines: ['Lunes a Viernes', '10:00 am – 7:00 pm'],
     },
 ];
 

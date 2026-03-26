@@ -4,8 +4,10 @@ import { Link } from "react-router-dom";
 
 export default function HeroSection() {
     const images = [
-        { src: "/IMG PARA PAGINA SHOP/cap.png",       alt: "Soluciones inteligentes para tu hogar",         buttonText: "Ir a la tienda" },
-        { src: "/IMG PARA PAGINA SHOP/SmartHome.jpg",  alt: "Seguridad inteligente SmartHome powered by epcom", buttonText: "Ver catálogo" },
+        { src: "/IMG PARA PAGINA SHOP/oleacarusel.png",     alt: "Compra tus equipos smarthome",                      buttonText: "Ir a la tienda" },
+        { src: "/IMG PARA PAGINA SHOP/SmartHome.jpg",    alt: "Seguridad inteligente SmartHome powered by epcom",  buttonText: "Ver catálogo" },
+        { src: "/IMG PARA PAGINA SHOP/controltotal.png", alt: "Control total y seguridad en una sola plataforma",  buttonText: "Ir a la tienda" },
+        { src: "/IMG PARA PAGINA SHOP/porqueolea.png",   alt: "Por qué Oleacontrols",                               buttonText: "Ver catálogo" },
     ];
 
     const [currentIndex, setCurrentIndex] = useState(0);
