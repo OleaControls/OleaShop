@@ -18,6 +18,9 @@ try {
 // Test 2: DB
 echo "<p>Conectando a BD...</p>";
 echo "<p>Host: " . DB_HOST . " | DB: " . DB_NAME . " | User: " . DB_USER . "</p>";
+$envPath = __DIR__ . '/.env';
+echo "<p>Buscando .env en: <code>" . $envPath . "</code></p>";
+echo "<p>.env existe: " . (file_exists($envPath) ? '✅ sí' : '❌ NO existe') . "</p>";
 echo "<p>DB_PASS configurado: " . (DB_PASS ? '✅ sí (' . strlen(DB_PASS) . ' chars)' : '❌ vacío') . "</p>";
 try {
     $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
