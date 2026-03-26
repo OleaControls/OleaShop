@@ -56,8 +56,10 @@ export function ProductsProvider({ children }) {
         const featured = products.filter(x => x.destacado === true);
         if (!product.destacado && featured.length >= 4) return; // máx 4
         const updated = { ...product, destacado: !product.destacado };
-        await api.updateProduct(id, updated);
+        // Actualizar estado inmediatamente (optimista)
         setProducts(prev => prev.map(x => x.id === id ? updated : x));
+        // Persistir en backend (silencioso si falla)
+        api.updateProduct(id, updated).catch(e => console.warn('toggleFeatured backend:', e.message));
     };
 
     return (
