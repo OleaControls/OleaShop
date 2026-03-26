@@ -11,6 +11,7 @@ function fmt(array $p): array {
     $p['original_price'] = $p['original_price'] !== null ? (float)$p['original_price'] : null;
     $p['stock']          = (int)$p['stock'];
     $p['activo']         = (bool)$p['activo'];
+    $p['destacado']      = (bool)($p['destacado'] ?? false);
     $p['rating']         = $p['rating'] !== null ? (float)$p['rating'] : null;
     $p['reviews']        = (int)$p['reviews'];
     $p['features']       = $p['features'] ? json_decode($p['features'], true) : [];
@@ -32,8 +33,8 @@ if ($method === 'POST') {
 
     $db->prepare("
         INSERT INTO products
-          (id,name,brand,price,original_price,category,description,image,images,specs,features,stock,activo,badge,rating,reviews)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+          (id,name,brand,price,original_price,category,description,image,images,specs,features,stock,activo,destacado,badge,rating,reviews)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     ")->execute([
         $pid,
         $d['name']            ?? '',
@@ -47,7 +48,8 @@ if ($method === 'POST') {
         json_encode($d['specs']    ?? []),
         json_encode($d['features'] ?? []),
         $d['stock']           ?? 10,
-        isset($d['activo']) ? (int)(bool)$d['activo'] : 1,
+        isset($d['activo'])     ? (int)(bool)$d['activo']     : 1,
+        isset($d['destacado'])  ? (int)(bool)$d['destacado']  : 0,
         $d['badge']           ?? null,
         $d['rating']          ?? null,
         $d['reviews']         ?? 0,
@@ -62,7 +64,7 @@ if ($method === 'PUT' && $id) {
     $db->prepare("
         UPDATE products SET
           name=?,brand=?,price=?,original_price=?,category=?,description=?,
-          image=?,images=?,specs=?,features=?,stock=?,activo=?,badge=?,rating=?,reviews=?
+          image=?,images=?,specs=?,features=?,stock=?,activo=?,destacado=?,badge=?,rating=?,reviews=?
         WHERE id=?
     ")->execute([
         $d['name']           ?? '',
@@ -76,7 +78,8 @@ if ($method === 'PUT' && $id) {
         json_encode($d['specs']    ?? []),
         json_encode($d['features'] ?? []),
         $d['stock']          ?? 10,
-        isset($d['activo']) ? (int)(bool)$d['activo'] : 1,
+        isset($d['activo'])    ? (int)(bool)$d['activo']    : 1,
+        isset($d['destacado']) ? (int)(bool)$d['destacado'] : 0,
         $d['badge']          ?? null,
         $d['rating']         ?? null,
         $d['reviews']        ?? 0,

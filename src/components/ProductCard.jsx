@@ -28,11 +28,17 @@ export default function ProductCard({ product }) {
 
             {/* Image Area */}
             <Link to={`/product/${product.id}`} className="block relative aspect-square overflow-hidden bg-gradient-to-b from-slate-50 to-white p-8">
-                <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 mix-blend-multiply drop-shadow-lg"
-                />
+                {product.image ? (
+                    <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 mix-blend-multiply drop-shadow-lg"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-200">
+                        <ShoppingCart className="size-12" />
+                    </div>
+                )}
 
                 {/* Category Badge */}
                 <span className={`absolute top-4 left-4 text-[8px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded-md shadow-sm ${badgeClass}`}>

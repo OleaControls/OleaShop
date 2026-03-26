@@ -547,14 +547,25 @@ function ProductModal({ product, onClose, onSave }) {
                             <input type="number" value={form.stock} onChange={e => set('stock', e.target.value)} placeholder="10"
                                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-xs text-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
                         </div>
-                        <div className="flex flex-col justify-center">
-                            <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Visible en tienda</label>
-                            <button onClick={() => set('activo', !form.activo)} className="flex items-center gap-2">
-                                {form.activo
-                                    ? <ToggleRight className="size-7 text-blue-600" />
-                                    : <ToggleLeft className="size-7 text-slate-300" />}
-                                <span className={`font-display text-[10px] font-bold uppercase tracking-wider ${form.activo ? 'text-blue-600' : 'text-slate-400'}`}>{form.activo ? 'Activo' : 'Inactivo'}</span>
-                            </button>
+                        <div className="flex flex-col justify-center gap-3">
+                            <div>
+                                <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Visible en tienda</label>
+                                <button onClick={() => set('activo', !form.activo)} className="flex items-center gap-2">
+                                    {form.activo
+                                        ? <ToggleRight className="size-7 text-blue-600" />
+                                        : <ToggleLeft className="size-7 text-slate-300" />}
+                                    <span className={`font-display text-[10px] font-bold uppercase tracking-wider ${form.activo ? 'text-blue-600' : 'text-slate-400'}`}>{form.activo ? 'Activo' : 'Inactivo'}</span>
+                                </button>
+                            </div>
+                            <div>
+                                <label className="font-display text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Página principal</label>
+                                <button onClick={() => set('destacado', !form.destacado)} className="flex items-center gap-2">
+                                    {form.destacado
+                                        ? <ToggleRight className="size-7 text-amber-500" />
+                                        : <ToggleLeft className="size-7 text-slate-300" />}
+                                    <span className={`font-display text-[10px] font-bold uppercase tracking-wider ${form.destacado ? 'text-amber-500' : 'text-slate-400'}`}>{form.destacado ? 'Destacado ★' : 'No destacado'}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -606,7 +617,7 @@ function ProductModal({ product, onClose, onSave }) {
 
 // ─── Productos ────────────────────────────────────────────────────────────────
 function TabProductos() {
-    const { products, addProduct, updateProduct, deleteProduct, toggleActive } = useProducts();
+    const { products, addProduct, updateProduct, deleteProduct, toggleActive, toggleFeatured } = useProducts();
     const [search, setSearch]     = useState('');
     const [editProduct, setEdit]  = useState(null);
     const [newProduct, setNew]    = useState(false);
@@ -625,7 +636,7 @@ function TabProductos() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h3 className="font-display text-lg font-bold text-slate-900 tracking-tight">Productos y servicios</h3>
-                    <p className="text-slate-400 text-xs font-medium mt-0.5">{products.length} items en catálogo · {products.filter(p=>p.activo!==false).length} activos</p>
+                    <p className="text-slate-400 text-xs font-medium mt-0.5">{products.length} items · {products.filter(p=>p.activo!==false).length} activos · <span className="text-amber-500 font-bold">★ {products.filter(p=>p.destacado).length}/4 en página principal</span></p>
                 </div>
                 <button onClick={() => setNew(true)} className="font-display flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-600/20 active:scale-[0.98] self-start sm:self-auto">
                     <Plus className="size-3.5" /> Nuevo producto
@@ -653,6 +664,7 @@ function TabProductos() {
                                 )}
                                 <span className={`absolute top-2 left-2 font-display text-[7px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border ${cc}`}>{p.category}</span>
                                 {inactive && <span className="absolute top-2 right-2 font-display text-[7px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-50 border border-red-200 text-red-500">Off</span>}
+                                {p.destacado && <span className="absolute bottom-2 right-2 text-amber-400 text-sm">★</span>}
                             </div>
 
                             <div className="p-3">
@@ -665,6 +677,10 @@ function TabProductos() {
                                     <button onClick={() => toggleActive(p.id)}
                                         className={`flex-1 font-display text-[8px] font-bold uppercase tracking-wide py-1.5 rounded-lg border transition-all ${inactive ? 'border-emerald-200 text-emerald-600 bg-emerald-50 hover:bg-emerald-100' : 'border-slate-200 text-slate-500 bg-slate-50 hover:bg-slate-100'}`}>
                                         {inactive ? 'Activar' : 'Desact.'}
+                                    </button>
+                                    <button onClick={() => toggleFeatured(p.id)} title={p.destacado ? 'Quitar de página principal' : 'Poner en página principal'}
+                                        className={`size-7 rounded-lg border flex items-center justify-center transition-all text-xs ${p.destacado ? 'bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100' : 'bg-slate-50 border-slate-200 text-slate-300 hover:text-amber-400 hover:border-amber-200'}`}>
+                                        ★
                                     </button>
                                     <button onClick={() => setEdit(p)} className="size-7 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-500 flex items-center justify-center transition-all">
                                         <Edit2 className="size-3" />

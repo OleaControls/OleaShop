@@ -50,8 +50,18 @@ export function ProductsProvider({ children }) {
         setProducts(prev => prev.map(x => x.id === id ? { ...x, activo: !x.activo } : x));
     };
 
+    const toggleFeatured = async (id) => {
+        const product = products.find(x => x.id === id);
+        if (!product) return;
+        const featured = products.filter(x => x.destacado === true);
+        if (!product.destacado && featured.length >= 4) return; // máx 4
+        const updated = { ...product, destacado: !product.destacado };
+        await api.updateProduct(id, updated);
+        setProducts(prev => prev.map(x => x.id === id ? updated : x));
+    };
+
     return (
-        <ProductsContext.Provider value={{ products, loading, addProduct, updateProduct, deleteProduct, toggleActive }}>
+        <ProductsContext.Provider value={{ products, loading, addProduct, updateProduct, deleteProduct, toggleActive, toggleFeatured }}>
             {children}
         </ProductsContext.Provider>
     );

@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function ProductsSection() {
     const { products: allProducts } = useProducts();
-    const featured = allProducts.filter(p => p.activo !== false).slice(0, 4);
+    const featured = allProducts.filter(p => p.destacado === true && p.activo !== false).slice(0, 4);
 
     return (
         <section className="py-16 md:py-24 px-5 md:px-12 bg-[#F6F6F4]">
@@ -30,11 +30,17 @@ export default function ProductsSection() {
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-7">
-                    {featured.map((p) => (
-                        <ProductCard key={p.id} product={p} />
-                    ))}
-                </div>
+                {featured.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-7">
+                        {featured.map((p) => (
+                            <ProductCard key={p.id} product={p} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-16 text-slate-400 text-sm font-medium">
+                        No hay productos destacados. Márcalos con ★ desde el panel de administración.
+                    </div>
+                )}
             </div>
         </section>
     );

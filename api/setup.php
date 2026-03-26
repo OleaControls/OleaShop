@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `products` (
   `features`       json          DEFAULT NULL,
   `stock`          int(11)       DEFAULT 10,
   `activo`         tinyint(1)    DEFAULT 1,
+  `destacado`      tinyint(1)    DEFAULT 0,
   `badge`          varchar(50)   DEFAULT NULL,
   `rating`         decimal(3,1)  DEFAULT NULL,
   `reviews`        int(11)       DEFAULT 0,
@@ -106,6 +107,14 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
   PRIMARY KEY (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
+
+// ─── Migraciones (agregar columnas nuevas si no existen) ───────────────────
+$migrations = [
+    "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `destacado` tinyint(1) DEFAULT 0",
+];
+foreach ($migrations as $sql) {
+    try { $db->exec($sql); } catch (Exception $e) { /* columna ya existe */ }
+}
 
 echo json_encode([
     'success' => true,
