@@ -17,10 +17,13 @@ try {
 
 // Test 2: DB
 echo "<p>Conectando a BD...</p>";
+echo "<p>Host: " . DB_HOST . " | DB: " . DB_NAME . " | User: " . DB_USER . "</p>";
+echo "<p>DB_PASS configurado: " . (DB_PASS ? '✅ sí (' . strlen(DB_PASS) . ' chars)' : '❌ vacío') . "</p>";
 try {
-    $db = getDB();
+    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     echo "<p style='color:green'>✅ Base de datos OK</p>";
-} catch (Throwable $e) {
+} catch (PDOException $e) {
     echo "<p style='color:red'>❌ BD ERROR: " . $e->getMessage() . "</p>";
 }
 
