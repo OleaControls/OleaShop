@@ -38,7 +38,7 @@ export default function HeroSection() {
                         <div className="absolute bottom-[15%] left-[8%] hidden md:block">
                             <Link
                                 to="/shop"
-                                className="flex items-center gap-3 bg-slate-900 hover:bg-blue-600 text-white px-12 py-5 rounded-full font-display font-bold uppercase text-xs tracking-[0.2em] shadow-xl transition-all active:scale-95 group/btn"
+                                className="flex items-center gap-3 bg-slate-900/50 hover:bg-blue-600/70 text-white px-12 py-5 rounded-full font-display font-bold uppercase text-xs tracking-[0.2em] shadow-xl transition-all active:scale-95 group/btn backdrop-blur-sm"
                             >
                                 <span>{image.buttonText}</span>
                                 <ShoppingCart className="size-5 group-hover/btn:translate-x-1 transition-transform" />
