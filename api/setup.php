@@ -108,6 +108,17 @@ CREATE TABLE IF NOT EXISTS `login_attempts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ");
 
+$db->exec("
+CREATE TABLE IF NOT EXISTS `admin_sessions` (
+  `id`          int(11)      NOT NULL AUTO_INCREMENT,
+  `token_hash`  varchar(64)  NOT NULL,
+  `expires_at`  datetime     NOT NULL,
+  `created_at`  datetime     DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `token_hash` (`token_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+");
+
 // ─── Migraciones (agregar columnas nuevas si no existen) ───────────────────
 $migrations = [
     "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `destacado` tinyint(1) DEFAULT 0",

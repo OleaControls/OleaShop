@@ -14,6 +14,9 @@ match ($action) {
     'me'              => handleMe($db),
     'profile'         => handleProfile($db),
     'change-password' => handleChangePassword($db),
+    'admin-login'     => handleAdminLogin($db),
+    'admin-refresh'   => handleAdminRefresh($db),
+    'admin-logout'    => handleAdminLogout($db),
     default           => err('Acción no válida'),
 };
 
@@ -248,6 +251,95 @@ function issueRefreshCookie(PDO $db, int $userId): void {
 
 function clearRefreshCookie(): void {
     setcookie('olea_refresh', '', [
+        'expires'  => time() - 3600,
+        'path'     => '/api',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'None',
+    ]);
+}
+
+// ─── Admin Login ──────────────────────────────────────────────────────────────
+function handleAdminLogin(PDO $db): void {
+    $ip   = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    checkRateLimit($db, $ip);
+
+    $d    = body();
+    $user = trim($d['user']     ?? '');
+    $pass = trim($d['password'] ?? '');
+
+    if (!$user || !$pass) err('Usuario y contraseña requeridos');
+
+    // Comparación timing-safe para evitar ataques de temporización
+    $validUser = hash_equals(ADMIN_USER, $user);
+    $validPass = hash_equals(ADMIN_PASS, $pass);
+
+    if (!$validUser || !$validPass) {
+        recordFailedAttempt($db, $ip);
+        err('Credenciales inválidas', 401);
+    }
+
+    $db->prepare("DELETE FROM login_attempts WHERE ip = ?")->execute([$ip]);
+
+    $accessToken = JWT::encode(['sub' => 0, 'role' => 'admin', 'name' => 'Administrador'], 3600);
+    issueAdminRefreshCookie($db);
+
+    ok(['accessToken' => $accessToken]);
+}
+
+// ─── Admin Refresh ────────────────────────────────────────────────────────────
+function handleAdminRefresh(PDO $db): void {
+    $cookie = $_COOKIE['olea_admin_refresh'] ?? '';
+    if (!$cookie) err('Sin sesión admin', 401);
+
+    $hash = hash('sha256', $cookie);
+    $stmt = $db->prepare("SELECT id, expires_at FROM admin_sessions WHERE token_hash = ? AND expires_at > NOW()");
+    $stmt->execute([$hash]);
+    $row = $stmt->fetch();
+
+    if (!$row) {
+        clearAdminRefreshCookie();
+        err('Sesión admin expirada', 401);
+    }
+
+    $db->prepare("DELETE FROM admin_sessions WHERE token_hash = ?")->execute([$hash]);
+    issueAdminRefreshCookie($db);
+
+    $accessToken = JWT::encode(['sub' => 0, 'role' => 'admin', 'name' => 'Administrador'], 3600);
+    ok(['accessToken' => $accessToken]);
+}
+
+// ─── Admin Logout ─────────────────────────────────────────────────────────────
+function handleAdminLogout(PDO $db): void {
+    $cookie = $_COOKIE['olea_admin_refresh'] ?? '';
+    if ($cookie) {
+        $hash = hash('sha256', $cookie);
+        $db->prepare("DELETE FROM admin_sessions WHERE token_hash = ?")->execute([$hash]);
+    }
+    clearAdminRefreshCookie();
+    ok(['success' => true]);
+}
+
+// ─── Admin cookie helpers ─────────────────────────────────────────────────────
+function issueAdminRefreshCookie(PDO $db): void {
+    $db->exec("DELETE FROM admin_sessions WHERE expires_at < NOW()");
+    $token = bin2hex(random_bytes(32));
+    $hash  = hash('sha256', $token);
+    $db->prepare("INSERT INTO admin_sessions (token_hash, expires_at) VALUES (?, DATE_ADD(NOW(), INTERVAL 8 HOUR))")
+       ->execute([$hash]);
+
+    $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    setcookie('olea_admin_refresh', $token, [
+        'expires'  => time() + 8 * 3600,
+        'path'     => '/api',
+        'secure'   => $isHttps,
+        'httponly' => true,
+        'samesite' => 'None',
+    ]);
+}
+
+function clearAdminRefreshCookie(): void {
+    setcookie('olea_admin_refresh', '', [
         'expires'  => time() - 3600,
         'path'     => '/api',
         'secure'   => true,

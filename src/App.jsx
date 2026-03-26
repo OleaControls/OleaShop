@@ -20,6 +20,7 @@ import Contacto from "./pages/Contacto";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ProductsProvider } from "./context/ProductsContext";
+import { AdminAuthProvider } from "./context/AdminAuthContext";
 
 import Categories from "./components/Categories";
 import Features from "./components/Features";
@@ -68,6 +69,7 @@ function AppShell() {
 
 export default function App() {
     return (
+        <AdminAuthProvider>
         <AuthProvider>
         <ProductsProvider>
         <CartProvider>
@@ -75,5 +77,6 @@ export default function App() {
         </CartProvider>
         </ProductsProvider>
         </AuthProvider>
+        </AdminAuthProvider>
     );
 }

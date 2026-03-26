@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../context/ProductsContext';
+import { useAdminAuth } from '../context/AdminAuthContext';
 import { api } from '../services/api';
 import {
     LayoutDashboard, Package, Calendar, Users, Wrench, LogOut,
@@ -824,10 +825,16 @@ export default function Admin() {
     // Reload orders when tab changes
     useEffect(() => { fetchOrders(); }, [tab]);
 
-    const isAdmin = localStorage.getItem('olea-admin') === '1';
-    if (!isAdmin) { navigate('/admin/login'); return null; }
+    const { isAdmin, loading: adminLoading, logout: adminLogout } = useAdminAuth();
 
-    const handleLogout = () => { localStorage.removeItem('olea-admin'); navigate('/admin/login'); };
+    useEffect(() => {
+        if (!adminLoading && !isAdmin) navigate('/admin/login');
+    }, [isAdmin, adminLoading]);
+
+    if (adminLoading) return null;
+    if (!isAdmin) return null;
+
+    const handleLogout = async () => { await adminLogout(); navigate('/admin/login'); };
 
     const pendingNew  = orders.filter(o => o.status === 'nueva').length;
     const pendingPago = orders.filter(o => o.pagoStatus === 'pendiente' && o.status !== 'cancelado').length;

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, Eye, EyeOff, Shield } from 'lucide-react';
-
-const ADMIN_CREDENTIALS = { user: 'admin', password: 'olea2026' };
+import { useAdminAuth } from '../context/AdminAuthContext';
 
 export default function AdminLogin() {
     const [form, setForm]       = useState({ user: '', password: '' });
@@ -10,20 +9,20 @@ export default function AdminLogin() {
     const [error, setError]     = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAdminAuth();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        setTimeout(() => {
-            if (form.user === ADMIN_CREDENTIALS.user && form.password === ADMIN_CREDENTIALS.password) {
-                localStorage.setItem('olea-admin', '1');
-                navigate('/admin');
-            } else {
-                setError('Usuario o contraseña incorrectos');
-            }
+        try {
+            await login(form.user, form.password);
+            navigate('/admin');
+        } catch (err) {
+            setError(err.message || 'Usuario o contraseña incorrectos');
+        } finally {
             setLoading(false);
-        }, 900);
+        }
     };
 
     return (

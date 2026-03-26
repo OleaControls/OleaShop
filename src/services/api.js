@@ -26,6 +26,13 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+    // ── Admin Auth ────────────────────────────────────────────────────────────
+    admin: {
+        login:   (data) => request('auth.php?action=admin-login',   { method: 'POST', body: JSON.stringify(data) }),
+        refresh: ()     => request('auth.php?action=admin-refresh',  { method: 'POST' }),
+        logout:  ()     => request('auth.php?action=admin-logout',   { method: 'POST' }),
+    },
+
     // ── Auth ──────────────────────────────────────────────────────────────────
     auth: {
         register:       (data)  => request('auth.php?action=register', { method: 'POST', body: JSON.stringify(data) }),
