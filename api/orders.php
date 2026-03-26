@@ -137,49 +137,129 @@ if ($method === 'POST') {
     if ($buyerEmail) {
         $rows = '';
         foreach ($items as $item) {
-            $subtotal = number_format($item['price'] * ($item['quantity'] ?? 1), 2);
-            $rows .= "<tr>
-                <td style='padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155;'>{$item['name']}</td>
-                <td style='padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155;text-align:center;'>{$item['quantity']}</td>
-                <td style='padding:10px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;font-weight:700;text-align:right;'>\${$subtotal}</td>
+            $qty      = (int)($item['quantity'] ?? 1);
+            $subtotal = number_format((float)$item['price'] * $qty, 2);
+            $nameEsc  = htmlspecialchars($item['name'] ?? '');
+            $rows .= "
+            <tr>
+              <td style='padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#334155;'>{$nameEsc}</td>
+              <td style='padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#64748b;text-align:center;'>{$qty}</td>
+              <td style='padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;color:#0f172a;font-weight:700;text-align:right;'>\${$subtotal} MXN</td>
             </tr>";
         }
-        $totalFmt = number_format($total, 2);
+        $totalFmt  = number_format($total, 2);
+        $safeName  = htmlspecialchars($buyerName);
+        $shipping  = $d['shipping'] ?? [];
+        $calle     = htmlspecialchars($shipping['calle']    ?? '');
+        $colonia   = htmlspecialchars($shipping['colonia']  ?? '');
+        $cp        = htmlspecialchars($shipping['cp']       ?? '');
+        $ciudad    = htmlspecialchars($shipping['ciudad']   ?? '');
+        $estado    = htmlspecialchars($shipping['estado']   ?? '');
+        $metodo    = $d['payment']['metodo'] ?? 'tarjeta';
+        $metodoLabel = ['tarjeta'=>'Tarjeta de crédito/débito','transferencia'=>'Transferencia SPEI','efectivo'=>'Efectivo'][$metodo] ?? $metodo;
+
         $html = "
 <!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'></head>
 <body style='margin:0;padding:0;background:#f6f6f4;font-family:Arial,sans-serif;'>
-<div style='max-width:600px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);'>
-  <div style='background:#1e3a5f;padding:32px 36px;'>
-    <h1 style='margin:0;color:#fff;font-size:22px;font-weight:800;letter-spacing:-0.5px;'>OLEACONTROLS</h1>
-    <p style='margin:6px 0 0;color:#93c5fd;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.2em;'>Confirmación de pedido</p>
+<div style='max-width:600px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);'>
+
+  <!-- Header -->
+  <div style='background:linear-gradient(135deg,#1e3a5f 0%,#1d4ed8 100%);padding:36px;text-align:center;'>
+    <img src='https://mediumblue-llama-473263.hostingersite.com/IMG%20PARA%20PAGINA%20SHOP/logo.png'
+         alt='OLEACONTROLS' style='height:28px;filter:brightness(0) invert(1);margin-bottom:14px;' />
+    <div style='display:inline-block;background:rgba(255,255,255,0.15);border-radius:50%;width:56px;height:56px;line-height:56px;font-size:28px;margin-bottom:12px;'>✅</div>
+    <h1 style='margin:0;color:#ffffff;font-size:22px;font-weight:800;'>¡Pedido confirmado!</h1>
+    <p style='margin:8px 0 0;color:#93c5fd;font-size:13px;'>Tu orden está siendo procesada</p>
   </div>
-  <div style='padding:32px 36px;'>
-    <p style='color:#334155;font-size:15px;margin:0 0 8px;'>Hola <strong>{$buyerName}</strong>,</p>
-    <p style='color:#64748b;font-size:14px;margin:0 0 24px;line-height:1.6;'>Tu pedido ha sido recibido y está siendo procesado. Recibirás una notificación cuando sea enviado.</p>
-    <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:24px;'>
-      <p style='margin:0 0 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#94a3b8;'>Número de pedido</p>
-      <p style='margin:0;font-size:20px;font-weight:800;color:#2563eb;'>{$folio}</p>
+
+  <!-- Folio banner -->
+  <div style='background:#eff6ff;border-bottom:2px solid #bfdbfe;padding:16px 36px;display:flex;justify-content:space-between;align-items:center;'>
+    <div>
+      <p style='margin:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;'>Número de pedido</p>
+      <p style='margin:4px 0 0;font-size:22px;font-weight:800;color:#1d4ed8;letter-spacing:-0.5px;'>{$folio}</p>
     </div>
-    <table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:24px;'>
-      <thead><tr style='background:#f1f5f9;'>
-        <th style='padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;text-align:left;'>Producto</th>
-        <th style='padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;text-align:center;'>Cant.</th>
-        <th style='padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;text-align:right;'>Total</th>
-      </tr></thead>
-      <tbody>{$rows}</tbody>
-      <tfoot><tr style='background:#fff;'>
-        <td colspan='2' style='padding:14px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#2563eb;border-top:2px solid #e2e8f0;'>Total a pagar</td>
-        <td style='padding:14px 16px;font-size:18px;font-weight:800;color:#0f172a;text-align:right;border-top:2px solid #e2e8f0;'>\${$totalFmt} MXN</td>
-      </tr></tfoot>
-    </table>
-    <p style='color:#64748b;font-size:13px;line-height:1.6;margin:0;'>¿Tienes preguntas? Escríbenos a <a href='mailto:soporte@oleacontrols.com' style='color:#2563eb;'>soporte@oleacontrols.com</a> o llámanos al <strong>55 7919 2845</strong>.</p>
+    <a href='https://mediumblue-llama-473263.hostingersite.com/cuenta'
+       style='background:#1d4ed8;color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-size:12px;font-weight:700;letter-spacing:0.05em;'>
+      Ver pedido →
+    </a>
   </div>
-  <div style='background:#f8fafc;padding:20px 36px;border-top:1px solid #e2e8f0;'>
-    <p style='margin:0;font-size:11px;color:#94a3b8;text-align:center;'>© 2026 OLEACONTROLS · Ingeniería en Sistemas Especiales · Ciudad de México</p>
+
+  <!-- Body -->
+  <div style='padding:32px 36px;'>
+    <p style='color:#334155;font-size:15px;margin:0 0 6px;font-weight:600;'>Hola, {$safeName} 👋</p>
+    <p style='color:#64748b;font-size:14px;margin:0 0 28px;line-height:1.7;'>
+      Tu pedido ha sido recibido y está siendo preparado. En breve recibirás actualizaciones sobre el estado de tu envío.
+    </p>
+
+    <!-- Products table -->
+    <p style='margin:0 0 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;'>Productos comprados</p>
+    <table style='width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:24px;'>
+      <thead>
+        <tr style='background:#f8fafc;'>
+          <th style='padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;text-align:left;'>Producto</th>
+          <th style='padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;text-align:center;'>Cant.</th>
+          <th style='padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;text-align:right;'>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>{$rows}</tbody>
+      <tfoot>
+        <tr>
+          <td colspan='2' style='padding:14px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#1d4ed8;border-top:2px solid #e2e8f0;'>Total pagado</td>
+          <td style='padding:14px 16px;font-size:20px;font-weight:800;color:#0f172a;text-align:right;border-top:2px solid #e2e8f0;'>\${$totalFmt} MXN</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Info grid -->
+    <table style='width:100%;border-collapse:collapse;margin-bottom:24px;'>
+      <tr>
+        <td style='width:50%;padding-right:8px;vertical-align:top;'>
+          <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;'>
+            <p style='margin:0 0 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;'>📦 Dirección de entrega</p>
+            <p style='margin:0;font-size:13px;color:#334155;font-weight:600;'>{$safeName}</p>
+            <p style='margin:4px 0 0;font-size:12px;color:#64748b;line-height:1.6;'>{$calle}<br>{$colonia}, CP {$cp}<br>{$ciudad}, {$estado}</p>
+          </div>
+        </td>
+        <td style='width:50%;padding-left:8px;vertical-align:top;'>
+          <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;'>
+            <p style='margin:0 0 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;'>💳 Método de pago</p>
+            <p style='margin:0;font-size:13px;color:#334155;font-weight:600;'>{$metodoLabel}</p>
+            <p style='margin:8px 0 0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#94a3b8;'>📅 Entrega estimada</p>
+            <p style='margin:4px 0 0;font-size:13px;color:#334155;font-weight:600;'>24 – 48 horas hábiles</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Next steps -->
+    <div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:24px;'>
+      <p style='margin:0 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:#15803d;'>¿Qué sigue?</p>
+      <table style='width:100%;border-collapse:collapse;'>
+        <tr><td style='padding:4px 0;font-size:13px;color:#166534;'>1️⃣ &nbsp;Preparamos tu pedido en nuestro almacén</td></tr>
+        <tr><td style='padding:4px 0;font-size:13px;color:#166534;'>2️⃣ &nbsp;Te enviamos el número de guía de rastreo</td></tr>
+        <tr><td style='padding:4px 0;font-size:13px;color:#166534;'>3️⃣ &nbsp;Tu equipo llega en 24–48 horas hábiles</td></tr>
+      </table>
+    </div>
+
+    <p style='color:#94a3b8;font-size:12px;margin:0;line-height:1.7;'>
+      ¿Tienes dudas? Contáctanos en
+      <a href='mailto:sistemasoleacontrols@gmail.com' style='color:#2563eb;text-decoration:none;'>sistemasoleacontrols@gmail.com</a>
+      o al <strong>55 7919 2845</strong> · Lun–Sáb 10am–7pm
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div style='background:#f8fafc;padding:20px 36px;border-top:1px solid #e2e8f0;text-align:center;'>
+    <p style='margin:0;font-size:11px;color:#94a3b8;'>© 2026 OLEACONTROLS · Ingeniería en Sistemas Especiales · Ciudad de México</p>
+    <p style='margin:6px 0 0;font-size:11px;'>
+      <a href='https://mediumblue-llama-473263.hostingersite.com/devoluciones' style='color:#94a3b8;text-decoration:none;'>Política de Devoluciones</a>
+      &nbsp;·&nbsp;
+      <a href='https://mediumblue-llama-473263.hostingersite.com/privacidad' style='color:#94a3b8;text-decoration:none;'>Aviso de Privacidad</a>
+    </p>
   </div>
 </div>
 </body></html>";
-        sendEmail($buyerEmail, "Pedido confirmado {$folio} — OLEACONTROLS", $html);
+        sendEmail($buyerEmail, "✅ Pedido {$folio} confirmado — OLEACONTROLS", $html);
     }
 
     ok(['success' => true, 'id' => $d['id']], 201);

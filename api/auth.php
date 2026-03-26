@@ -53,6 +53,68 @@ function handleRegister(PDO $db): void {
     $accessToken = JWT::encode(['sub' => $userId, 'name' => $name, 'email' => $email]);
     issueRefreshCookie($db, $userId);
 
+    // ── Email de bienvenida ────────────────────────────────────────────────
+    $safeName = htmlspecialchars($name);
+    $html = "
+<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'></head>
+<body style='margin:0;padding:0;background:#f6f6f4;font-family:Arial,sans-serif;'>
+<div style='max-width:600px;margin:40px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);'>
+
+  <!-- Header -->
+  <div style='background:linear-gradient(135deg,#1e3a5f 0%,#1d4ed8 100%);padding:40px 36px;text-align:center;'>
+    <img src='https://mediumblue-llama-473263.hostingersite.com/IMG%20PARA%20PAGINA%20SHOP/logo.png'
+         alt='OLEACONTROLS' style='height:32px;filter:brightness(0) invert(1);margin-bottom:16px;' />
+    <h1 style='margin:0;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.5px;'>¡Bienvenido a Olea Controls!</h1>
+    <p style='margin:8px 0 0;color:#93c5fd;font-size:13px;font-weight:500;'>Tu cuenta ha sido creada exitosamente</p>
+  </div>
+
+  <!-- Body -->
+  <div style='padding:36px;'>
+    <p style='color:#334155;font-size:16px;margin:0 0 8px;font-weight:600;'>Hola, {$safeName} 👋</p>
+    <p style='color:#64748b;font-size:14px;margin:0 0 28px;line-height:1.7;'>
+      Nos da mucho gusto tenerte en nuestra comunidad. Ya puedes explorar nuestro catálogo de equipos de seguridad y domótica, agregar productos a tu carrito y realizar compras con total seguridad.
+    </p>
+
+    <!-- Benefits -->
+    <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;margin-bottom:28px;'>
+      <p style='margin:0 0 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:#94a3b8;'>Lo que puedes hacer con tu cuenta</p>
+      <table style='width:100%;border-collapse:collapse;'>
+        <tr><td style='padding:6px 0;font-size:13px;color:#475569;'>✅ &nbsp;Ver el historial de tus pedidos</td></tr>
+        <tr><td style='padding:6px 0;font-size:13px;color:#475569;'>✅ &nbsp;Guardar tus datos de envío</td></tr>
+        <tr><td style='padding:6px 0;font-size:13px;color:#475569;'>✅ &nbsp;Dejar reseñas en los productos</td></tr>
+        <tr><td style='padding:6px 0;font-size:13px;color:#475569;'>✅ &nbsp;Pagar de forma segura con Stripe</td></tr>
+      </table>
+    </div>
+
+    <!-- CTA -->
+    <div style='text-align:center;margin-bottom:28px;'>
+      <a href='https://mediumblue-llama-473263.hostingersite.com/shop'
+         style='display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:12px;font-size:14px;font-weight:700;letter-spacing:0.05em;box-shadow:0 4px 12px rgba(29,78,216,0.3);'>
+        Ir a la tienda →
+      </a>
+    </div>
+
+    <p style='color:#94a3b8;font-size:12px;margin:0;line-height:1.7;'>
+      ¿Tienes alguna duda? Contáctanos en
+      <a href='mailto:sistemasoleacontrols@gmail.com' style='color:#2563eb;text-decoration:none;'>sistemasoleacontrols@gmail.com</a>
+      o al <strong>55 7919 2845</strong> · Lunes a Sábado 10am – 7pm.
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div style='background:#f8fafc;padding:20px 36px;border-top:1px solid #e2e8f0;text-align:center;'>
+    <p style='margin:0;font-size:11px;color:#94a3b8;'>© 2026 OLEACONTROLS · Ingeniería en Sistemas Especiales · Ciudad de México</p>
+    <p style='margin:6px 0 0;font-size:11px;color:#cbd5e1;'>
+      <a href='https://mediumblue-llama-473263.hostingersite.com/privacidad' style='color:#94a3b8;text-decoration:none;'>Aviso de Privacidad</a>
+      &nbsp;·&nbsp;
+      <a href='https://mediumblue-llama-473263.hostingersite.com/terminos' style='color:#94a3b8;text-decoration:none;'>Términos y Condiciones</a>
+    </p>
+  </div>
+</div>
+</body></html>";
+
+    sendEmail($email, '¡Bienvenido a OLEACONTROLS! Tu cuenta está lista', $html);
+
     ok([
         'accessToken' => $accessToken,
         'user'        => ['id' => $userId, 'name' => $name, 'email' => $email, 'phone' => null],
