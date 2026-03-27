@@ -21,6 +21,12 @@ echo "<p>Host: " . DB_HOST . " | DB: " . DB_NAME . " | User: " . DB_USER . "</p>
 $envPath = __DIR__ . '/.env';
 echo "<p>Buscando .env en: <code>" . $envPath . "</code></p>";
 echo "<p>.env existe: " . (file_exists($envPath) ? '✅ sí' : '❌ NO existe') . "</p>";
+if (file_exists($envPath)) {
+    $raw = file_get_contents($envPath);
+    $parsed = parse_ini_file($envPath);
+    echo "<p>Contenido raw:<br><pre>" . htmlspecialchars($raw) . "</pre></p>";
+    echo "<p>Keys encontradas: " . implode(', ', array_keys($parsed ?: [])) . "</p>";
+}
 echo "<p>DB_PASS configurado: " . (DB_PASS ? '✅ sí (' . strlen(DB_PASS) . ' chars)' : '❌ vacío') . "</p>";
 try {
     $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
