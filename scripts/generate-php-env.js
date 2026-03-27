@@ -17,7 +17,7 @@ const vars = {
 };
 
 const content = Object.entries(vars)
-    .map(([k, v]) => `${k}=${v}`)
+    .map(([k, v]) => `${k}="${v.replace(/"/g, '\\"')}"`)
     .join('\n') + '\n';
 
 const outPath = join(root, 'dist', 'api', '.env');
