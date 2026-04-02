@@ -496,7 +496,7 @@ function TabOrdenes({ orders, setOrders }) {
 function ProductModal({ product, onClose, onSave }) {
     const isNew = !product;
     const [form, setForm] = useState(product || {
-        name:'', category:'Seguridad', price:'', description:'', image:'', stock:'10',
+        name:'', category:'Seguridad', price:'', description:'', image:'', images:[], stock:'10',
         features:[''], activo:true,
     });
 
@@ -505,8 +505,15 @@ function ProductModal({ product, onClose, onSave }) {
     const addFeature = () => setForm(p => ({ ...p, features: [...p.features, ''] }));
     const removeFeature = (i) => setForm(p => ({ ...p, features: p.features.filter((_,fi) => fi!==i) }));
 
-    const [imgMode,   setImgMode]   = useState('url');
-    const [uploading, setUploading] = useState(false);
+    const addExtraImage    = (url) => setForm(p => ({ ...p, images: [...(p.images || []), url] }));
+    const removeExtraImage = (i)   => setForm(p => ({ ...p, images: (p.images || []).filter((_, fi) => fi !== i) }));
+
+    const [imgMode,        setImgMode]        = useState('url');
+    const [uploading,      setUploading]       = useState(false);
+    const [addImgPanel,    setAddImgPanel]     = useState(false);
+    const [addImgMode,     setAddImgMode]      = useState('url');
+    const [addImgUrl,      setAddImgUrl]       = useState('');
+    const [uploadingExtra, setUploadingExtra]  = useState(false);
 
     const handleFileUpload = async (e) => {
         const file = e.target.files?.[0];
@@ -519,6 +526,22 @@ function ProductModal({ product, onClose, onSave }) {
             alert('Error al subir imagen: ' + err.message);
         } finally {
             setUploading(false);
+            e.target.value = '';
+        }
+    };
+
+    const handleExtraFileUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploadingExtra(true);
+        try {
+            const { url } = await api.uploadImage(file);
+            addExtraImage(url);
+            setAddImgPanel(false);
+        } catch (err) {
+            alert('Error al subir imagen: ' + err.message);
+        } finally {
+            setUploadingExtra(false);
             e.target.value = '';
         }
     };
@@ -589,7 +612,7 @@ function ProductModal({ product, onClose, onSave }) {
                     </div>
 
                     <div>
-                        <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Imagen</label>
+                        <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Imagen principal</label>
                         <div className="flex gap-1 p-1 bg-slate-100 rounded-xl mb-2">
                             <button type="button" onClick={() => setImgMode('url')}
                                 className={`flex-1 py-1.5 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider transition-all ${imgMode === 'url' ? 'bg-white shadow text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
@@ -620,6 +643,68 @@ function ProductModal({ product, onClose, onSave }) {
                                     <img src={form.image} alt="" className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
                                 </div>
                                 <p className="font-display text-[11px] text-slate-400 truncate flex-1">{form.image}</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ── Imágenes adicionales ─────────────────────────── */}
+                    <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400">Imágenes adicionales</label>
+                            <button type="button" onClick={() => { setAddImgPanel(p => !p); setAddImgUrl(''); }}
+                                className="font-display text-[12px] font-bold uppercase tracking-wider text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">
+                                <Plus className="size-3" /> Agregar
+                            </button>
+                        </div>
+
+                        {(form.images?.length > 0) && (
+                            <div className="flex gap-2 flex-wrap mb-2">
+                                {form.images.map((img, i) => (
+                                    <div key={i} className="relative group size-16 rounded-xl border border-slate-100 bg-slate-50 overflow-hidden flex items-center justify-center">
+                                        <img src={img} alt="" className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
+                                        <button type="button" onClick={() => removeExtraImage(i)}
+                                            className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-xl">
+                                            <X className="size-4 text-white" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {addImgPanel && (
+                            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                                <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
+                                    <button type="button" onClick={() => setAddImgMode('url')}
+                                        className={`flex-1 py-1 rounded-md font-display text-[11px] font-bold uppercase tracking-wider transition-all ${addImgMode === 'url' ? 'bg-white shadow text-slate-800' : 'text-slate-400'}`}>
+                                        URL
+                                    </button>
+                                    <button type="button" onClick={() => setAddImgMode('file')}
+                                        className={`flex-1 py-1 rounded-md font-display text-[11px] font-bold uppercase tracking-wider transition-all ${addImgMode === 'file' ? 'bg-white shadow text-slate-800' : 'text-slate-400'}`}>
+                                        Subir desde PC
+                                    </button>
+                                </div>
+
+                                {addImgMode === 'url' ? (
+                                    <div className="flex gap-2">
+                                        <input value={addImgUrl} onChange={e => setAddImgUrl(e.target.value)}
+                                            placeholder="https://... o /ruta/imagen.png"
+                                            className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg font-display text-[13px] text-slate-800 focus:outline-none focus:border-blue-400 transition-all" />
+                                        <button type="button"
+                                            onClick={() => { if (addImgUrl.trim()) { addExtraImage(addImgUrl.trim()); setAddImgUrl(''); setAddImgPanel(false); } }}
+                                            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white rounded-lg transition-colors"
+                                            disabled={!addImgUrl.trim()}>
+                                            <Check className="size-4" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <label className={`flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed rounded-lg cursor-pointer transition-all ${uploadingExtra ? 'border-blue-300 bg-blue-50 cursor-wait' : 'border-slate-200 bg-white hover:border-blue-300'}`}>
+                                        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleExtraFileUpload} disabled={uploadingExtra} />
+                                        {uploadingExtra
+                                            ? <><RefreshCw className="size-4 text-blue-400 animate-spin" /><span className="font-display text-[12px] text-blue-500 font-bold">Subiendo...</span></>
+                                            : <><Image className="size-4 text-slate-400" /><span className="font-display text-[12px] text-slate-400 font-bold">Seleccionar imagen</span></>
+                                        }
+                                    </label>
+                                )}
                             </div>
                         )}
                     </div>
