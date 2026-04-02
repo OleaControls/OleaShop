@@ -958,14 +958,7 @@ export default function Admin() {
     // Reload orders when tab changes
     useEffect(() => { fetchOrders(); }, [tab]);
 
-    const { isAdmin, loading: adminLoading, logout: adminLogout } = useAdminAuth();
-
-    useEffect(() => {
-        if (!adminLoading && !isAdmin) navigate('/admin/login');
-    }, [isAdmin, adminLoading]);
-
-    if (adminLoading) return null;
-    if (!isAdmin) return null;
+    const { logout: adminLogout } = useAdminAuth();
 
     const handleLogout = async () => { await adminLogout(); navigate('/admin/login'); };
 

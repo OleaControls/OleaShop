@@ -1,4 +1,6 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import { useAdminAuth } from './context/AdminAuthContext';
 import LenisScroll from "./components/lenis-scroll";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
@@ -26,6 +28,22 @@ import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ProductsProvider } from "./context/ProductsContext";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
+
+// ─── Route guards ─────────────────────────────────────────────────────────────
+function RequireAuth({ children }) {
+    const { isAuthenticated, loading } = useAuth();
+    const location = useLocation();
+    if (loading) return null;
+    if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
+    return children;
+}
+
+function RequireAdmin({ children }) {
+    const { isAdmin, loading } = useAdminAuth();
+    if (loading) return null;
+    if (!isAdmin) return <Navigate to="/admin/login" replace />;
+    return children;
+}
 
 import Categories from "./components/Categories";
 import Features from "./components/Features";
@@ -59,8 +77,8 @@ function AppShell() {
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/cuenta" element={<Cuenta />} />
+                <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
+                <Route path="/cuenta" element={<RequireAuth><Cuenta /></RequireAuth>} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/nosotros" element={<Nosotros />} />
@@ -71,7 +89,7 @@ function AppShell() {
                 <Route path="/terminos" element={<Terminos />} />
                 <Route path="/devoluciones" element={<Devoluciones />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
             </Routes>
             {!isAdmin && <Footer />}
             {!isAdmin && <WhatsAppButton />}

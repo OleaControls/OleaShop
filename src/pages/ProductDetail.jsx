@@ -18,7 +18,8 @@ const categoryColors = {
 };
 
 export default function ProductDetail() {
-    const { id } = useParams();
+    const { id: rawId } = useParams();
+    const id = decodeURIComponent(rawId);
     const { products } = useProducts();
     const product = products.find(p => p.id === id);
     const { addToCart } = useCart();

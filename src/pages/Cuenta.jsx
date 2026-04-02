@@ -501,11 +501,6 @@ export default function Cuenta() {
             .finally(() => setOrdersLoading(false));
     }, [isAuthenticated]);
 
-    if (!isAuthenticated) {
-        navigate('/login');
-        return null;
-    }
-
     const tabs = [
         { id: 'inicio',    icon: LayoutDashboard, label: 'Inicio'    },
         { id: 'pedidos',   icon: Package,         label: 'Pedidos'   },

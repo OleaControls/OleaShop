@@ -27,7 +27,7 @@ export default function ProductCard({ product }) {
         <div className="group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-full">
 
             {/* Image Area */}
-            <Link to={`/product/${product.id}`} className="block relative aspect-square overflow-hidden bg-gradient-to-b from-slate-50 to-white p-8">
+            <Link to={`/product/${encodeURIComponent(product.id)}`} className="block relative aspect-square overflow-hidden bg-gradient-to-b from-slate-50 to-white p-8">
                 {product.image ? (
                     <img
                         src={product.image}
@@ -54,7 +54,7 @@ export default function ProductCard({ product }) {
             </Link>
 
             {/* Content */}
-            <Link to={`/product/${product.id}`} className="px-5 pt-4 pb-2 flex flex-col flex-grow">
+            <Link to={`/product/${encodeURIComponent(product.id)}`} className="px-5 pt-4 pb-2 flex flex-col flex-grow">
                 <h3 className="font-display font-bold text-slate-900 text-sm leading-tight group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
                     {product.name}
                 </h3>
