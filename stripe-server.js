@@ -10,6 +10,23 @@ const stripe    = new Stripe(process.env.STRIPE_SECRET_KEY);
 const app       = express();
 
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+
+// ── Upload proxy — ANTES de express.json() para no consumir el stream ────
+app.post('/api/upload.php', async (req, res) => {
+    const url = `${HOSTINGER}/api/upload.php`;
+    try {
+        const headers = { 'Content-Type': req.headers['content-type'] };
+        if (req.headers.authorization) headers['Authorization'] = req.headers.authorization;
+        // Pasar req directamente como stream (Node 18+)
+        const fetchRes = await fetch(url, { method: 'POST', headers, body: req, duplex: 'half' });
+        const text = await fetchRes.text();
+        res.status(fetchRes.status).type('application/json').send(text);
+    } catch (err) {
+        console.error('❌  Upload error:', err.message);
+        res.status(502).json({ error: 'Upload proxy error: ' + err.message });
+    }
+});
+
 app.use(express.json());
 
 // ── Stripe PaymentIntent ─────────────────────────────────────────────────────

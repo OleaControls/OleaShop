@@ -505,6 +505,24 @@ function ProductModal({ product, onClose, onSave }) {
     const addFeature = () => setForm(p => ({ ...p, features: [...p.features, ''] }));
     const removeFeature = (i) => setForm(p => ({ ...p, features: p.features.filter((_,fi) => fi!==i) }));
 
+    const [imgMode,   setImgMode]   = useState('url');
+    const [uploading, setUploading] = useState(false);
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploading(true);
+        try {
+            const { url } = await api.uploadImage(file);
+            set('image', url);
+        } catch (err) {
+            alert('Error al subir imagen: ' + err.message);
+        } finally {
+            setUploading(false);
+            e.target.value = '';
+        }
+    };
+
     const isValid = form.name && form.price && form.category;
 
     return (
@@ -571,9 +589,39 @@ function ProductModal({ product, onClose, onSave }) {
                     </div>
 
                     <div>
-                        <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">URL de imagen</label>
-                        <input value={form.image} onChange={e => set('image', e.target.value)} placeholder="/IMG PARA PAGINA SHOP/producto.png"
-                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-basetext-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                        <label className="font-display text-[12px] font-bold uppercase tracking-widest text-slate-400 block mb-1.5">Imagen</label>
+                        <div className="flex gap-1 p-1 bg-slate-100 rounded-xl mb-2">
+                            <button type="button" onClick={() => setImgMode('url')}
+                                className={`flex-1 py-1.5 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider transition-all ${imgMode === 'url' ? 'bg-white shadow text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
+                                URL
+                            </button>
+                            <button type="button" onClick={() => setImgMode('file')}
+                                className={`flex-1 py-1.5 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider transition-all ${imgMode === 'file' ? 'bg-white shadow text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
+                                Subir desde PC
+                            </button>
+                        </div>
+
+                        {imgMode === 'url' ? (
+                            <input value={form.image} onChange={e => set('image', e.target.value)} placeholder="/IMG PARA PAGINA SHOP/producto.png"
+                                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-display text-base text-slate-800 focus:outline-none focus:border-blue-400 focus:bg-white transition-all" />
+                        ) : (
+                            <label className={`flex items-center justify-center gap-2 w-full px-3.5 py-4 border-2 border-dashed rounded-xl cursor-pointer transition-all ${uploading ? 'border-blue-300 bg-blue-50 cursor-wait' : 'border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/50'}`}>
+                                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFileUpload} disabled={uploading} />
+                                {uploading
+                                    ? <><RefreshCw className="size-4 text-blue-400 animate-spin" /><span className="font-display text-[13px] text-blue-500 font-bold">Subiendo...</span></>
+                                    : <><Image className="size-4 text-slate-400" /><span className="font-display text-[13px] text-slate-400 font-bold">Seleccionar imagen (JPG, PNG, WebP)</span></>
+                                }
+                            </label>
+                        )}
+
+                        {form.image && (
+                            <div className="mt-2 flex items-center gap-2">
+                                <div className="size-14 shrink-0 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden">
+                                    <img src={form.image} alt="" className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
+                                </div>
+                                <p className="font-display text-[11px] text-slate-400 truncate flex-1">{form.image}</p>
+                            </div>
+                        )}
                     </div>
 
                     <div>

@@ -59,6 +59,21 @@ export const api = {
     createOrder:        (order)          => request('orders.php', { method: 'POST', body: JSON.stringify(order) }),
     updateOrderPayment: (id, pagoStatus) => request(`orders.php?id=${id}`, { method: 'PATCH', body: JSON.stringify({ pagoStatus }) }),
 
+    // ── Upload ────────────────────────────────────────────────────────────────
+    uploadImage: (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+        return fetch(`${BASE}/upload.php`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { ...(_token ? { Authorization: `Bearer ${_token}` } : {}) },
+            body: formData,
+        }).then(async r => {
+            if (!r.ok) throw new Error(((await r.json().catch(() => ({}))).error) || `HTTP ${r.status}`);
+            return r.json();
+        });
+    },
+
     // ── Products ──────────────────────────────────────────────────────────────
     getProducts:   ()            => request('products.php'),
     createProduct: (product)     => request('products.php', { method: 'POST', body: JSON.stringify(product) }),
