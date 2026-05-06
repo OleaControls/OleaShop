@@ -53,9 +53,9 @@ export default function Footer() {
                         <div className="col-span-1">
                             <Link to='/' className="flex items-center mb-7">
                                 <img
-                                    src="/IMG PARA PAGINA SHOP/logo.png"
+                                    src="/logos/LogoOleaHomeControls.png"
                                     alt="OLEACONTROLS"
-                                    className="h-7 w-auto object-contain brightness-0 invert"
+                                    className="h-24 w-auto object-contain"
                                 />
                             </Link>
                             <p className="text-[13px] leading-relaxed mb-8 font-medium text-slate-500">

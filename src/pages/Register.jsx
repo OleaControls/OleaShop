@@ -61,9 +61,9 @@ export default function Register() {
                 <div className="text-center mb-8">
                     <Link to="/">
                         <img
-                            src="/IMG PARA PAGINA SHOP/logo.png"
+                            src="/logos/LogoOleaHomeControls.png"
                             alt="OLEACONTROLS"
-                            className="h-7 w-auto object-contain mx-auto mb-6 opacity-80 hover:opacity-100 transition-opacity"
+                            className="h-40 w-auto object-contain mx-auto mb-6 opacity-90 hover:opacity-100 transition-opacity"
                         />
                     </Link>
                     <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Crea tu cuenta</h1>

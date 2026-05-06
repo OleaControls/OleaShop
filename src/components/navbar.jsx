@@ -49,14 +49,14 @@ export default function Navbar() {
 
                 {/* ── Main nav ─────────────────────────────────────────── */}
                 <nav className="bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-                    <div className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between gap-6">
+                    <div className="max-w-7xl mx-auto px-6 md:px-10 h-20 flex items-center justify-between gap-6">
 
                         {/* Logo */}
                         <Link to="/" className="shrink-0 hover:opacity-70 transition-opacity">
                             <img
-                                src="/IMG PARA PAGINA SHOP/logo.png"
+                                src="/logos/LogoOleaHomeControls.png"
                                 alt="OLEACONTROLS"
-                                className="h-6 md:h-7 w-auto object-contain"
+                                className="h-16 md:h-[72px] w-auto object-contain"
                             />
                         </Link>
 
@@ -188,9 +188,9 @@ export default function Navbar() {
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.07]">
                         <img
-                            src="/IMG PARA PAGINA SHOP/logo.png"
+                            src="/logos/LogoOleaHomeControls.png"
                             alt="OLEACONTROLS"
-                            className="h-6 w-auto object-contain brightness-0 invert opacity-60"
+                            className="h-16 w-auto object-contain"
                         />
                         <button
                             onClick={() => setIsOpen(false)}
